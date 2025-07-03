@@ -1,3 +1,4 @@
+
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -125,8 +126,8 @@ export function AddMeasurementDialog({ children, open, onOpenChange, customerId 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-             <ScrollArea className="max-h-[60vh] p-1 pr-6">
-                 <div className="space-y-4 p-4">
+             <ScrollArea className="max-h-[60vh]">
+                 <div className="space-y-4 p-4 pr-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
                         <h4 className="col-span-full font-medium text-base mt-2">Core</h4>
                         {renderMeasurementField("height", "Height")}
@@ -177,7 +178,7 @@ export function AddMeasurementDialog({ children, open, onOpenChange, customerId 
                     </div>
                  </div>
             </ScrollArea>
-            <DialogFooter className="pt-6 pr-6 sm:justify-start">
+            <DialogFooter className="pt-6 sm:justify-start">
                 <Button type="submit">Save Measurement</Button>
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             </DialogFooter>
