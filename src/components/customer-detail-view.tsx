@@ -4,12 +4,12 @@ import * as React from "react"
 import Link from "next/link"
 import { format } from 'date-fns';
 import { useCustomerStore } from "@/lib/store"
-import { Avatar, AvatarFallback } from "./ui/avatar"
-import { Button } from "./ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronLeft, Mail, Phone, PlusCircle, Ruler } from "lucide-react"
-import { AddMeasurementDialog } from "./add-measurement-dialog";
+import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
 
 type CustomerDetailViewProps = {
   customerId: string

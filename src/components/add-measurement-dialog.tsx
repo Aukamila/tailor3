@@ -24,8 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useToast } from "./ui/use-toast"
-import { ScrollArea } from "./ui/scroll-area"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   neck: z.coerce.number().positive().nullable(),

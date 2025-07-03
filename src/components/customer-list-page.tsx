@@ -22,8 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { AddCustomerDialog } from "./add-customer-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { AddCustomerDialog } from "@/components/add-customer-dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function CustomerListPage() {
   const [searchQuery, setSearchQuery] = React.useState("")
