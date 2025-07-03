@@ -40,6 +40,10 @@ function CustomerDetailSkeleton() {
     )
 }
 
+type CustomerDetailViewProps = {
+    customerId: string;
+};
+
 export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
   const [isClient, setIsClient] = React.useState(false)
   React.useEffect(() => {
@@ -68,6 +72,10 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
   }
 
   const sortedMeasurements = [...customer.measurements].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const renderCell = (value: number | null | undefined) => (
+    <TableCell className="text-center">{value ?? '–'}</TableCell>
+  )
 
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
@@ -106,25 +114,87 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Date</TableHead>
+                            <TableHead className="sticky left-0 bg-card">Date</TableHead>
+                            <TableHead className="text-center">Height</TableHead>
                             <TableHead className="text-center">Neck</TableHead>
+                            <TableHead className="text-center">Neck Width</TableHead>
                             <TableHead className="text-center">Chest</TableHead>
                             <TableHead className="text-center">Waist</TableHead>
                             <TableHead className="text-center">Hips</TableHead>
-                            <TableHead className="text-center">Sleeve</TableHead>
-                            <TableHead className="text-center">Inseam</TableHead>
+                            <TableHead className="text-center">Underbust</TableHead>
+                            <TableHead className="text-center">Nipple to Nipple</TableHead>
+                            <TableHead className="text-center">Shoulder</TableHead>
+                            <TableHead className="text-center">Single Shoulder</TableHead>
+                            <TableHead className="text-center">Front Drop</TableHead>
+                            <TableHead className="text-center">Back Drop</TableHead>
+                            <TableHead className="text-center">Sleeve Length</TableHead>
+                            <TableHead className="text-center">Upperarm Width</TableHead>
+                            <TableHead className="text-center">Armhole Curve</TableHead>
+                            <TableHead className="text-center">Armhole Curve (Straight)</TableHead>
+                            <TableHead className="text-center">Shoulder to Wrist</TableHead>
+                            <TableHead className="text-center">Shoulder to Elbow</TableHead>
+                            <TableHead className="text-center">Inner Arm Length</TableHead>
+                            <TableHead className="text-center">Sleeve Opening</TableHead>
+                            <TableHead className="text-center">Cuff Height</TableHead>
+                            <TableHead className="text-center">Inseam Length</TableHead>
+                            <TableHead className="text-center">Outseam Length</TableHead>
+                            <TableHead className="text-center">Waist to Knee</TableHead>
+                            <TableHead className="text-center">Waist to Ankle</TableHead>
+                            <TableHead className="text-center">Thigh Circ.</TableHead>
+                            <TableHead className="text-center">Ankle Circ.</TableHead>
+                            <TableHead className="text-center">Back Rise</TableHead>
+                            <TableHead className="text-center">Front Rise</TableHead>
+                            <TableHead className="text-center">Leg Opening</TableHead>
+                            <TableHead className="text-center">Seat Length</TableHead>
+                            <TableHead className="text-center">Neck Band Width</TableHead>
+                            <TableHead className="text-center">Collar Width</TableHead>
+                            <TableHead className="text-center">Collar Point</TableHead>
+                            <TableHead className="text-center">Waist Band</TableHead>
+                            <TableHead className="text-center">Shoulder to Waist</TableHead>
+                            <TableHead className="text-center">Shoulder to Ankle</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {sortedMeasurements.map(m => (
                             <TableRow key={m.id}>
-                                <TableCell className="font-medium">{format(new Date(m.date), 'PP')}</TableCell>
-                                <TableCell className="text-center">{m.neck ?? '–'}</TableCell>
-                                <TableCell className="text-center">{m.chest ?? '–'}</TableCell>
-                                <TableCell className="text-center">{m.waist ?? '–'}</TableCell>
-                                <TableCell className="text-center">{m.hips ?? '–'}</TableCell>
-                                <TableCell className="text-center">{m.sleeve ?? '–'}</TableCell>
-                                <TableCell className="text-center">{m.inseam ?? '–'}</TableCell>
+                                <TableCell className="font-medium sticky left-0 bg-card">{format(new Date(m.date), 'PP')}</TableCell>
+                                {renderCell(m.height)}
+                                {renderCell(m.neck)}
+                                {renderCell(m.neckWidth)}
+                                {renderCell(m.chest)}
+                                {renderCell(m.waist)}
+                                {renderCell(m.hips)}
+                                {renderCell(m.underbust)}
+                                {renderCell(m.nippleToNipple)}
+                                {renderCell(m.shoulder)}
+                                {renderCell(m.singleShoulder)}
+                                {renderCell(m.frontDrop)}
+                                {renderCell(m.backDrop)}
+                                {renderCell(m.sleeveLength)}
+                                {renderCell(m.upperarmWidth)}
+                                {renderCell(m.armholeCurve)}
+                                {renderCell(m.armholeCurveStraight)}
+                                {renderCell(m.shoulderToWrist)}
+                                {renderCell(m.shoulderToElbow)}
+                                {renderCell(m.innerArmLength)}
+                                {renderCell(m.sleeveOpening)}
+                                {renderCell(m.cuffHeight)}
+                                {renderCell(m.inseamLength)}
+                                {renderCell(m.outseamLength)}
+                                {renderCell(m.waistToKneeLength)}
+                                {renderCell(m.waistToAnkle)}
+                                {renderCell(m.thighCirc)}
+                                {renderCell(m.ankleCirc)}
+                                {renderCell(m.backRise)}
+                                {renderCell(m.frontRise)}
+                                {renderCell(m.legOpening)}
+                                {renderCell(m.seatLength)}
+                                {renderCell(m.neckBandWidth)}
+                                {renderCell(m.collarWidth)}
+                                {renderCell(m.collarPoint)}
+                                {renderCell(m.waistBand)}
+                                {renderCell(m.shoulderToWaist)}
+                                {renderCell(m.shoulderToAnkle)}
                             </TableRow>
                         ))}
                     </TableBody>

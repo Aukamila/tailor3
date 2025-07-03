@@ -4,12 +4,53 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 export interface Measurement {
   id: string;
   date: string;
+  
+  // Core
+  height: number | null;
   neck: number | null;
   chest: number | null;
   waist: number | null;
   hips: number | null;
-  sleeve: number | null;
-  inseam: number | null;
+
+  // Upper Body
+  shoulder: number | null;
+  neckWidth: number | null;
+  underbust: number | null;
+  nippleToNipple: number | null;
+  singleShoulder: number | null;
+  frontDrop: number | null;
+  backDrop: number | null;
+  
+  // Arm
+  sleeveLength: number | null;
+  upperarmWidth: number | null;
+  armholeCurve: number | null;
+  armholeCurveStraight: number | null;
+  shoulderToWrist: number | null;
+  shoulderToElbow: number | null;
+  innerArmLength: number | null;
+  sleeveOpening: number | null;
+  cuffHeight: number | null;
+  
+  // Lower Body
+  inseamLength: number | null;
+  outseamLength: number | null;
+  waistToKneeLength: number | null;
+  waistToAnkle: number | null;
+  thighCirc: number | null;
+  ankleCirc: number | null;
+  backRise: number | null;
+  frontRise: number | null;
+  legOpening: number | null;
+  seatLength: number | null;
+  
+  // Garment Specific
+  neckBandWidth: number | null;
+  collarWidth: number | null;
+  collarPoint: number | null;
+  waistBand: number | null;
+  shoulderToWaist: number | null;
+  shoulderToAnkle: number | null;
 }
 
 export interface Customer {
@@ -28,6 +69,20 @@ interface CustomerState {
   addMeasurement: (customerId: string, measurement: Omit<Measurement, 'id' | 'date'>) => void;
 }
 
+const emptyMeasurement: Omit<Measurement, 'id' | 'date'> = {
+    height: null, neck: null, chest: null, waist: null, hips: null, shoulder: null,
+    neckWidth: null, underbust: null, nippleToNipple: null, singleShoulder: null,
+    frontDrop: null, backDrop: null, sleeveLength: null, upperarmWidth: null,
+    armholeCurve: null, armholeCurveStraight: null, shoulderToWrist: null,
+    shoulderToElbow: null, innerArmLength: null, sleeveOpening: null,
+    cuffHeight: null, inseamLength: null, outseamLength: null,
+    waistToKneeLength: null, waistToAnkle: null, thighCirc: null, ankleCirc: null,
+    backRise: null, frontRise: null, legOpening: null, seatLength: null,
+    neckBandWidth: null, collarWidth: null, collarPoint: null, waistBand: null,
+    shoulderToWaist: null, shoulderToAnkle: null,
+};
+
+
 const initialCustomers: Customer[] = [
   {
     id: '1',
@@ -37,8 +92,8 @@ const initialCustomers: Customer[] = [
     jobNumber: 'JOB-001',
     requestDate: new Date('2023-10-01T10:00:00Z').toISOString(),
     measurements: [
-      { id: 'm1', date: new Date('2023-10-15T10:00:00Z').toISOString(), neck: 14.5, chest: 38, waist: 30, hips: 40, sleeve: 24, inseam: 31 },
-      { id: 'm2', date: new Date('2024-03-22T11:30:00Z').toISOString(), neck: 14.5, chest: 38.5, waist: 30, hips: 40, sleeve: 24, inseam: 31 },
+      { id: 'm1', date: new Date('2023-10-15T10:00:00Z').toISOString(), ...emptyMeasurement, neck: 14.5, chest: 38, waist: 30, hips: 40, sleeveLength: 24, inseamLength: 31 },
+      { id: 'm2', date: new Date('2024-03-22T11:30:00Z').toISOString(), ...emptyMeasurement, neck: 14.5, chest: 38.5, waist: 30, hips: 40, sleeveLength: 24, inseamLength: 31 },
     ],
   },
   {
@@ -49,7 +104,7 @@ const initialCustomers: Customer[] = [
     jobNumber: 'JOB-002',
     requestDate: new Date('2024-03-25T14:00:00Z').toISOString(),
     measurements: [
-      { id: 'm3', date: new Date('2024-04-01T14:00:00Z').toISOString(), neck: 16, chest: 42, waist: 34, hips: 42, sleeve: 26, inseam: 33 },
+      { id: 'm3', date: new Date('2024-04-01T14:00:00Z').toISOString(), ...emptyMeasurement, neck: 16, chest: 42, waist: 34, hips: 42, sleeveLength: 26, inseamLength: 33 },
     ],
   },
   {
@@ -60,7 +115,7 @@ const initialCustomers: Customer[] = [
     jobNumber: 'JOB-003',
     requestDate: new Date('2024-05-15T09:45:00Z').toISOString(),
     measurements: [
-      { id: 'm4', date: new Date('2024-05-20T09:45:00Z').toISOString(), neck: 13.5, chest: 34, waist: 26, hips: 38, sleeve: 23, inseam: 29 },
+      { id: 'm4', date: new Date('2024-05-20T09:45:00Z').toISOString(), ...emptyMeasurement, neck: 13.5, chest: 34, waist: 26, hips: 38, sleeveLength: 23, inseamLength: 29 },
     ],
   },
 ];
