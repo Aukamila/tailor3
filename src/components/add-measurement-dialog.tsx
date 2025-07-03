@@ -177,9 +177,9 @@ export function AddMeasurementDialog({ children, open, onOpenChange, customerId 
                     </div>
                  </div>
             </ScrollArea>
-            <DialogFooter className="pt-6 pr-6">
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <DialogFooter className="pt-6 pr-6 sm:justify-start">
                 <Button type="submit">Save Measurement</Button>
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             </DialogFooter>
           </form>
         </Form>
