@@ -10,16 +10,50 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar } from "lucide-react"
 import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type CustomerDetailViewProps = {
-  customerId: string
+function CustomerDetailSkeleton() {
+    return (
+        <main className="flex-1 p-4 md:p-8 space-y-8">
+            <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-md" />
+                <Skeleton className="h-16 w-16 rounded-full" />
+                <div className="space-y-2">
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-4 w-[400px]" />
+                </div>
+            </div>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-64" />
+                    <Skeleton className="h-4 w-80" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {[...Array(5)].map((_, i) => (
+                           <Skeleton key={i} className="h-12 w-full" />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        </main>
+    )
 }
 
 export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
+  const [isClient, setIsClient] = React.useState(false)
+  React.useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const customer = useCustomerStore((state) =>
     state.customers.find((c) => c.id === customerId)
   )
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+  if (!isClient) {
+    return <CustomerDetailSkeleton />;
+  }
 
   if (!customer) {
     return (

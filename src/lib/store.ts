@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface Measurement {
   id: string;
@@ -64,45 +65,53 @@ const initialCustomers: Customer[] = [
   },
 ];
 
-export const useCustomerStore = create<CustomerState>((set) => ({
-  customers: initialCustomers,
-  
-  addCustomer: (customerData, initialMeasurement) => {
-    set((state) => ({
-      customers: [
-        ...state.customers,
-        {
-          ...customerData,
-          id: (state.customers.length + 1).toString(),
-          measurements: [
+export const useCustomerStore = create<CustomerState>()(
+  persist(
+    (set) => ({
+      customers: initialCustomers,
+      
+      addCustomer: (customerData, initialMeasurement) => {
+        set((state) => ({
+          customers: [
+            ...state.customers,
             {
-              ...initialMeasurement,
-              id: `m-${Date.now()}`,
-              date: new Date().toISOString(),
-            },
-          ],
-        },
-      ],
-    }));
-  },
-
-  addMeasurement: (customerId, measurementData) => {
-    set((state) => ({
-      customers: state.customers.map(customer =>
-        customer.id === customerId
-          ? {
-              ...customer,
+              ...customerData,
+              id: `c-${Date.now()}`,
               measurements: [
-                ...customer.measurements,
                 {
-                  ...measurementData,
+                  ...initialMeasurement,
                   id: `m-${Date.now()}`,
                   date: new Date().toISOString(),
                 },
-              ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-            }
-          : customer
-      ),
-    }));
-  },
-}));
+              ],
+            },
+          ],
+        }));
+      },
+    
+      addMeasurement: (customerId, measurementData) => {
+        set((state) => ({
+          customers: state.customers.map(customer =>
+            customer.id === customerId
+              ? {
+                  ...customer,
+                  measurements: [
+                    ...customer.measurements,
+                    {
+                      ...measurementData,
+                      id: `m-${Date.now()}`,
+                      date: new Date().toISOString(),
+                    },
+                  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+                }
+              : customer
+          ),
+        }));
+      },
+    }),
+    {
+      name: 'stitchlink-customer-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
