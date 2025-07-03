@@ -16,6 +16,8 @@ export interface Customer {
   name: string;
   email: string;
   phone: string;
+  jobNumber: string;
+  requestDate: string;
   measurements: Measurement[];
 }
 
@@ -31,6 +33,8 @@ const initialCustomers: Customer[] = [
     name: 'Eleanor Vance',
     email: 'eleanor.vance@example.com',
     phone: '202-555-0181',
+    jobNumber: 'JOB-001',
+    requestDate: new Date('2023-10-01T10:00:00Z').toISOString(),
     measurements: [
       { id: 'm1', date: new Date('2023-10-15T10:00:00Z').toISOString(), neck: 14.5, chest: 38, waist: 30, hips: 40, sleeve: 24, inseam: 31 },
       { id: 'm2', date: new Date('2024-03-22T11:30:00Z').toISOString(), neck: 14.5, chest: 38.5, waist: 30, hips: 40, sleeve: 24, inseam: 31 },
@@ -41,6 +45,8 @@ const initialCustomers: Customer[] = [
     name: 'Marcus Thorne',
     email: 'marcus.thorne@example.com',
     phone: '312-555-0142',
+    jobNumber: 'JOB-002',
+    requestDate: new Date('2024-03-25T14:00:00Z').toISOString(),
     measurements: [
       { id: 'm3', date: new Date('2024-04-01T14:00:00Z').toISOString(), neck: 16, chest: 42, waist: 34, hips: 42, sleeve: 26, inseam: 33 },
     ],
@@ -50,6 +56,8 @@ const initialCustomers: Customer[] = [
     name: 'Isabelle Rossi',
     email: 'isabelle.rossi@example.com',
     phone: '415-555-0199',
+    jobNumber: 'JOB-003',
+    requestDate: new Date('2024-05-15T09:45:00Z').toISOString(),
     measurements: [
       { id: 'm4', date: new Date('2024-05-20T09:45:00Z').toISOString(), neck: 13.5, chest: 34, waist: 26, hips: 38, sleeve: 23, inseam: 29 },
     ],

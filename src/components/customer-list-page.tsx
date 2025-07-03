@@ -2,15 +2,13 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { PlusCircle, Search, Users, ChevronRight } from "lucide-react"
-import { useCustomerStore, type Customer } from "@/lib/store"
+import { PlusCircle, Search, ChevronRight } from "lucide-react"
+import { useCustomerStore } from "@/lib/store"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
@@ -23,7 +21,8 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { AddCustomerDialog } from "@/components/add-customer-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { format } from "date-fns"
 
 export function CustomerListPage() {
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -69,6 +68,7 @@ export function CustomerListPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Customer</TableHead>
+                  <TableHead className="hidden sm:table-cell">Job Number</TableHead>
                   <TableHead className="hidden md:table-cell">Phone</TableHead>
                   <TableHead className="hidden sm:table-cell">Measurements</TableHead>
                   <TableHead className="text-right"></TableHead>
@@ -86,9 +86,13 @@ export function CustomerListPage() {
                           <div className="grid gap-0.5">
                             <span className="font-medium">{customer.name}</span>
                             <span className="text-sm text-muted-foreground">{customer.email}</span>
+                             <span className="text-xs text-muted-foreground">
+                                Requested on {format(new Date(customer.requestDate), 'PP')}
+                            </span>
                           </div>
                         </div>
                       </TableCell>
+                      <TableCell className="hidden sm:table-cell font-mono text-sm">{customer.jobNumber}</TableCell>
                       <TableCell className="hidden md:table-cell">{customer.phone}</TableCell>
                       <TableCell className="hidden sm:table-cell">
                         <Badge variant="secondary">{customer.measurements.length} record(s)</Badge>
@@ -104,7 +108,7 @@ export function CustomerListPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={5} className="h-24 text-center">
                        {searchQuery ? "No customers found." : "No customers yet. Add one to get started!"}
                     </TableCell>
                   </TableRow>

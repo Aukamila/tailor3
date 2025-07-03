@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronLeft, Mail, Phone, PlusCircle, Ruler } from "lucide-react"
+import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar } from "lucide-react"
 import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
 
 type CustomerDetailViewProps = {
@@ -46,9 +46,11 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
             </Avatar>
             <div>
               <h1 className="text-3xl font-bold font-headline">{customer.name}</h1>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" /> {customer.email}</span>
                 <span className="flex items-center gap-1.5"><Phone className="h-4 w-4" /> {customer.phone}</span>
+                <span className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> {customer.jobNumber}</span>
+                <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> Requested on {format(new Date(customer.requestDate), 'PP')}</span>
               </div>
             </div>
         </div>
