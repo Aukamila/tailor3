@@ -2,12 +2,10 @@
 "use client"
 
 import * as React from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { LogIn, Scissors } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useFormState, useFormStatus } from "react-dom"
+import { login } from "../actions"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,57 +16,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { createClient } from "@/lib/supabase/client"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(1, { message: "Password is required." }),
-})
+function SubmitButton() {
+  const { pending } = useFormStatus()
+
+  return (
+    <Button type="submit" className="w-full" disabled={pending} variant="default">
+      {pending ? "Signing In..." : "Sign In"}
+      <LogIn className="ml-2 h-4 w-4" />
+    </Button>
+  )
+}
 
 export default function LoginPage() {
-  const router = useRouter()
+  const [state, formAction] = useFormState(login, undefined)
   const { toast } = useToast()
-  const [isLoading, setIsLoading] = React.useState(false)
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    const supabase = createClient()
-    
-    const { error } = await supabase.auth.signInWithPassword(values)
-
-    if (error) {
+  React.useEffect(() => {
+    if (state?.error) {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message,
+        description: state.error,
       })
-      setIsLoading(false)
-    } else {
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      })
-      router.push("/dashboard")
     }
-  }
+  }, [state, toast])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -82,42 +59,19 @@ export default function LoginPage() {
             <CardDescription>Sign in to manage your workshop</CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., owner@stitch.link" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <Button type="submit" className="w-full" disabled={isLoading} variant="default">
-                  {isLoading ? "Signing In..." : "Sign In"}
-                  <LogIn className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
-            </Form>
+            <form action={formAction} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input id="email" name="email" type="email" placeholder="e.g., owner@stitch.link" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" placeholder="••••••••" required />
+              </div>
+              <SubmitButton />
+            </form>
           </CardContent>
-          <CardFooter className="flex justify-center text-sm">
+          <CardFooter className="flex-col gap-4 text-sm">
              <p className="text-muted-foreground">
                 Don't have an account?{" "}
                 <Button variant="link" asChild className="p-0 h-auto">

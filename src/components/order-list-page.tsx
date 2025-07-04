@@ -4,7 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { Search, ChevronRight } from "lucide-react"
-import { useCustomerStore, PaymentStatus, CompletionStatus } from "@/lib/store"
+import type { PaymentStatus, CompletionStatus } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -27,124 +27,35 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-function OrderListSkeleton() {
-    return (
-        <div className="flex flex-col min-h-screen">
-            <main className="flex-1 p-4 md:p-8 space-y-8">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold font-headline">All Orders</h1>
-                        <p className="text-muted-foreground">
-                            View and manage all customer orders.
-                        </p>
-                    </div>
-                </div>
-                <Card>
-                    <CardHeader>
-                        <Skeleton className="h-10 w-full max-w-sm" />
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead className="hidden sm:table-cell">Job Details</TableHead>
-                                    <TableHead className="hidden md:table-cell">Payment</TableHead>
-                                    <TableHead className="hidden md:table-cell">Status</TableHead>
-                                    <TableHead className="text-right"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {[...Array(5)].map((_, i) => (
-                                    <TableRow key={i}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Skeleton className="h-10 w-10 rounded-full" />
-                                                <div className="grid gap-1">
-                                                    <Skeleton className="h-4 w-24" />
-                                                    <Skeleton className="h-3 w-32" />
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden sm:table-cell">
-                                            <div className="grid gap-0.5">
-                                                <Skeleton className="h-4 w-20" />
-                                                <Skeleton className="h-3 w-28" />
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
-                                        <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
-                                        <TableCell className="text-right"><Skeleton className="h-10 w-10" /></TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </main>
-        </div>
-    )
-}
-
 type Order = {
   customerId: string;
   customerName: string;
-  customerEmail: string;
-  nic: string;
-  jobNumber: string;
+  customerEmail: string | null;
+  nic: string | null;
+  jobNumber: string | null;
   measurementId: string;
   measurementDate: string;
   paymentStatus: PaymentStatus;
   completionStatus: CompletionStatus;
 };
 
-export function OrderListPage() {
-  const [isClient, setIsClient] = React.useState(false)
-  React.useEffect(() => {
-    setIsClient(true)
-  }, [])
-
+export function OrderListPage({ initialOrders }: { initialOrders: Order[] }) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [paymentFilter, setPaymentFilter] = React.useState("All")
-  const customers = useCustomerStore((state) => state.customers)
-
-  const allOrders = React.useMemo(() => {
-    const orders: Order[] = [];
-    customers.forEach(customer => {
-        customer.measurements.forEach(measurement => {
-            orders.push({
-                customerId: customer.id,
-                customerName: customer.name,
-                customerEmail: customer.email,
-                nic: customer.nic,
-                jobNumber: customer.jobNumber,
-                measurementId: measurement.id,
-                measurementDate: measurement.date,
-                paymentStatus: measurement.paymentStatus,
-                completionStatus: measurement.completionStatus
-            });
-        });
-    });
-    return orders.sort((a,b) => new Date(b.measurementDate).getTime() - new Date(a.measurementDate).getTime());
-  }, [customers]);
-
+  
   const filteredOrders = React.useMemo(() => {
-    return allOrders
+    return initialOrders
       .filter((order) => {
         if (paymentFilter === 'All') return true
         return order.paymentStatus === paymentFilter
       })
       .filter((order) =>
         order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.jobNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (order.jobNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (order.nic || '').toLowerCase().includes(searchQuery.toLowerCase())
       )
-  }, [allOrders, paymentFilter, searchQuery]);
+  }, [initialOrders, paymentFilter, searchQuery]);
 
-
-  if (!isClient) {
-    return <OrderListSkeleton />;
-  }
   
   const getPaymentStatusVariant = (status: PaymentStatus) => {
     switch (status) {
@@ -248,7 +159,7 @@ export function OrderListPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                       {allOrders.length > 0 ? "No orders match your current filters." : "No orders yet."}
+                       {initialOrders.length > 0 ? "No orders match your current filters." : "No orders yet."}
                     </TableCell>
                   </TableRow>
                 )}

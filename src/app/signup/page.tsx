@@ -2,12 +2,10 @@
 "use client"
 
 import * as React from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { UserPlus, Scissors } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { useFormState, useFormStatus } from "react-dom"
+import { signup } from "../actions"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,67 +16,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { createClient } from "@/lib/supabase/client"
 
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-})
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+     <Button type="submit" className="w-full" disabled={pending} variant="default">
+      {pending ? "Creating Account..." : "Sign Up"}
+      <UserPlus className="ml-2 h-4 w-4" />
+    </Button>
+  )
+}
 
 export default function SignupPage() {
-  const router = useRouter()
+  const [state, formAction] = useFormState(signup, undefined)
   const { toast } = useToast()
-  const [isLoading, setIsLoading] = React.useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-    },
-  })
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    const supabase = createClient()
-    
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        data: {
-          name: values.name,
-        },
-      }
-    })
-
-    if (error) {
-      toast({
+  React.useEffect(() => {
+    if (state?.error) {
+       toast({
         variant: "destructive",
-        title: "Sign Up Failed",
-        description: error.message,
+        title: "Signup Failed",
+        description: state.error,
       })
-      setIsLoading(false)
-    } else {
-      toast({
-          title: "Account Created",
-          description: "Your account has been created successfully. You can now sign in.",
-      })
-      router.push("/login")
     }
-  }
+  }, [state, toast])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -92,53 +56,21 @@ export default function SignupPage() {
             <CardDescription>Get started with StitchLink today</CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                 <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., John Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., john.doe@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <Button type="submit" className="w-full" disabled={isLoading} variant="default">
-                  {isLoading ? "Creating Account..." : "Sign Up"}
-                  <UserPlus className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
-            </Form>
+            <form action={formAction} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input id="name" name="name" placeholder="e.g., John Doe" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input id="email" name="email" type="email" placeholder="e.g., john.doe@example.com" required />
+                </div>
+                <div className="space-y-2">
+                   <Label htmlFor="password">Password</Label>
+                  <Input id="password" name="password" type="password" placeholder="••••••••" required minLength={8}/>
+                </div>
+                <SubmitButton />
+            </form>
           </CardContent>
           <CardFooter className="flex justify-center text-sm">
              <p className="text-muted-foreground">

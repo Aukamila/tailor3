@@ -13,11 +13,11 @@ import {
 import { CircleUser, Home, Scissors, Users, ClipboardList, LogOut } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { signOut } from "../auth/actions"
+import { signOut } from "../actions"
+import { redirect } from "next/navigation"
 
 export default async function DashboardLayout({
   children,
@@ -25,17 +25,28 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    }
+  )
 
   const { data: { user } } = await supabase.auth.getUser()
-
+  
   if (!user) {
-    redirect('/login')
+    redirect('/login');
   }
-
+  
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
+
 
   return (
     <SidebarProvider>
@@ -67,18 +78,18 @@ export default async function DashboardLayout({
         <SidebarFooter className="p-2 space-y-2">
             <div className="flex items-center gap-3 p-2">
                 <Avatar className="h-10 w-10">
-                    <AvatarImage src={user.user_metadata.avatar_url} alt={user.user_metadata.name} data-ai-hint="person" />
-                    <AvatarFallback>{getInitials(user.user_metadata.name || user.email || '')}</AvatarFallback>
+                    <AvatarImage src={user.user_metadata.avatar_url} alt={user.user_metadata.name || ''} data-ai-hint="person" />
+                    <AvatarFallback>{getInitials(user.user_metadata.full_name || user.email || '')}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                    <span className="font-semibold text-sidebar-foreground">{user.user_metadata.name || 'User'}</span>
+                    <span className="font-semibold text-sidebar-foreground">{user.user_metadata.full_name ?? 'Shop Owner'}</span>
                     <span className="text-xs text-sidebar-foreground/70">{user.email}</span>
                 </div>
             </div>
             <form action={signOut} className="w-full">
-              <Button variant="ghost" className="w-full h-auto justify-start p-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Sign Out</span>
+              <Button variant="ghost" className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center">
+                <LogOut className="h-4 w-4" />
+                <span className="group-data-[collapsible=icon]:hidden ml-2">Sign Out</span>
               </Button>
             </form>
         </SidebarFooter>

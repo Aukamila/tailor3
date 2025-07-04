@@ -4,71 +4,44 @@
 import * as React from "react"
 import Link from "next/link"
 import { format } from 'date-fns';
-import { useCustomerStore, Measurement, PaymentStatus, CompletionStatus } from "@/lib/store"
+import { type Customer, type Measurement, type PaymentStatus, type CompletionStatus } from "@/lib/types"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar, CreditCard, Pencil } from "lucide-react"
 import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EditMeasurementDialog } from "./edit-measurement-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-function CustomerDetailSkeleton() {
-    return (
-        <main className="flex-1 p-4 md:p-8 space-y-8">
-            <div className="flex items-center gap-4">
-                <Skeleton className="h-10 w-10 rounded-md" />
-                <Skeleton className="h-16 w-16 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-8 w-48" />
-                    <Skeleton className="h-4 w-[500px]" />
-                </div>
-            </div>
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-8 w-64" />
-                    <Skeleton className="h-4 w-80" />
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-2">
-                        {[...Array(5)].map((_, i) => (
-                           <Skeleton key={i} className="h-12 w-full" />
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-        </main>
-    )
-}
-
 const measurementLabels: Record<string, string> = {
     height: 'Height', neck: 'Neck', chest: 'Chest', waist: 'Waist', hips: 'Hips', shoulder: 'Shoulder',
-    neckWidth: 'Neck Width', underbust: 'Underbust', nippleToNipple: 'Nipple to Nipple', singleShoulder: 'Single Shoulder',
-    frontDrop: 'Front Drop', backDrop: 'Back Drop', sleeveLength: 'Sleeve Length', upperarmWidth: 'Upperarm Width',
-    armholeCurve: 'Armhole Curve', armholeCurveStraight: 'Armhole Curve (Straight)', shoulderToWrist: 'Shoulder to Wrist',
-    shoulderToElbow: 'Shoulder to Elbow', innerArmLength: 'Inner Arm Length', sleeveOpening: 'Sleeve Opening',
-    cuffHeight: 'Cuff Height', inseamLength: 'Inseam Length', outseamLength: 'Outseam Length',
-    waistToKneeLength: 'Waist to Knee Length', waistToAnkle: 'Waist to Ankle', thighCirc: 'Thigh Circ.', ankleCirc: 'Ankle Circ.',
-    backRise: 'Back Rise', frontRise: 'Front Rise', legOpening: 'Leg Opening', seatLength: 'Seat Length',
-    neckBandWidth: 'Neck Band Width', collarWidth: 'Collar Width', collarPoint: 'Collar Point', waistBand: 'Waist Band',
-    shoulderToWaist: 'Shoulder to Waist', shoulderToAnkle: 'Shoulder to Ankle',
+    neck_width: 'Neck Width', underbust: 'Underbust', nipple_to_nipple: 'Nipple to Nipple', single_shoulder: 'Single Shoulder',
+    front_drop: 'Front Drop', back_drop: 'Back Drop', sleeve_length: 'Sleeve Length', upperarm_width: 'Upperarm Width',
+    armhole_curve: 'Armhole Curve', armhole_curve_straight: 'Armhole Curve (Straight)', shoulder_to_wrist: 'Shoulder to Wrist',
+    shoulder_to_elbow: 'Shoulder to Elbow', inner_arm_length: 'Inner Arm Length', sleeve_opening: 'Sleeve Opening',
+    cuff_height: 'Cuff Height', inseam_length: 'Inseam Length', outseam_length: 'Outseam Length',
+    waist_to_knee_length: 'Waist to Knee Length', waist_to_ankle: 'Waist to Ankle', thigh_circ: 'Thigh Circ.', ankle_circ: 'Ankle Circ.',
+    back_rise: 'Back Rise', front_rise: 'Front Rise', leg_opening: 'Leg Opening', seat_length: 'Seat Length',
+    neck_band_width: 'Neck Band Width', collar_width: 'Collar Width', collar_point: 'Collar Point', waist_band: 'Waist Band',
+    shoulder_to_waist: 'Shoulder to Waist', shoulder_to_ankle: 'Shoulder to Ankle',
 };
 
-const measurementGroups = {
+type MeasurementKey = keyof Omit<Measurement, 'id' | 'date' | 'payment_status' | 'completion_status' | 'customer_id' | 'user_id' | 'created_at'>;
+
+const measurementGroups: { [key: string]: MeasurementKey[] } = {
     "Core": ['height', 'neck', 'chest', 'waist', 'hips'],
-    "Upper Body": ['shoulder', 'neckWidth', 'underbust', 'nippleToNipple', 'singleShoulder', 'frontDrop', 'backDrop'],
-    "Arm": ['sleeveLength', 'upperarmWidth', 'armholeCurve', 'armholeCurveStraight', 'shoulderToWrist', 'shoulderToElbow', 'innerArmLength', 'sleeveOpening', 'cuffHeight'],
-    "Lower Body": ['inseamLength', 'outseamLength', 'waistToKneeLength', 'waistToAnkle', 'thighCirc', 'ankleCirc', 'backRise', 'frontRise', 'legOpening', 'seatLength'],
-    "Garment Specific": ['neckBandWidth', 'collarWidth', 'collarPoint', 'waistBand', 'shoulderToWaist', 'shoulderToAnkle']
-} as const;
+    "Upper Body": ['shoulder', 'neck_width', 'underbust', 'nipple_to_nipple', 'single_shoulder', 'front_drop', 'back_drop'],
+    "Arm": ['sleeve_length', 'upperarm_width', 'armhole_curve', 'armhole_curve_straight', 'shoulder_to_wrist', 'shoulder_to_elbow', 'inner_arm_length', 'sleeve_opening', 'cuff_height'],
+    "Lower Body": ['inseam_length', 'outseam_length', 'waist_to_knee_length', 'waist_to_ankle', 'thigh_circ', 'ankle_circ', 'back_rise', 'front_rise', 'leg_opening', 'seat_length'],
+    "Garment Specific": ['neck_band_width', 'collar_width', 'collar_point', 'waist_band', 'shoulder_to_waist', 'shoulder_to_ankle']
+};
 
 type MeasurementGroupCardProps = {
     title: string;
     measurements: Measurement;
-    fields: readonly (keyof Omit<Measurement, 'id' | 'date' | 'paymentStatus' | 'completionStatus'>)[];
+    fields: MeasurementKey[];
 }
 
 function MeasurementGroupCard({ title, measurements, fields }: MeasurementGroupCardProps) {
@@ -96,41 +69,11 @@ function MeasurementGroupCard({ title, measurements, fields }: MeasurementGroupC
     )
 }
 
-
-type CustomerDetailViewProps = {
-    customerId: string;
-};
-
-export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
-  const [isClient, setIsClient] = React.useState(false)
-  React.useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  const customer = useCustomerStore((state) =>
-    state.customers.find((c) => c.id === customerId)
-  )
+export function CustomerDetailView({ customer }: { customer: Customer }) {
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const [editingMeasurement, setEditingMeasurement] = React.useState<Measurement | null>(null);
 
-
-  if (!isClient) {
-    return <CustomerDetailSkeleton />;
-  }
-
-  if (!customer) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-         <h2 className="text-2xl font-semibold">Customer Not Found</h2>
-         <p className="text-muted-foreground">The customer you are looking for does not exist.</p>
-         <Button asChild className="mt-4">
-            <Link href="/dashboard">Go Back to Customers</Link>
-         </Button>
-      </div>
-    )
-  }
-
-  const sortedMeasurements = [...customer.measurements].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sortedMeasurements = customer.measurements || [];
 
   const getPaymentStatusVariant = (status: PaymentStatus) => {
     switch (status) {
@@ -150,7 +93,6 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
     }
   }
 
-
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
         <div className="flex items-center gap-4">
@@ -166,8 +108,8 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                 <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" /> {customer.email}</span>
                 <span className="flex items-center gap-1.5"><Phone className="h-4 w-4" /> {customer.phone}</span>
                 <span className="flex items-center gap-1.5"><CreditCard className="h-4 w-4" /> {customer.nic}</span>
-                <span className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> {customer.jobNumber}</span>
-                <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> Requested on {format(new Date(customer.requestDate), 'PP')}</span>
+                <span className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> {customer.job_number}</span>
+                <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> Requested on {format(new Date(customer.request_date), 'PP')}</span>
               </div>
             </div>
         </div>
@@ -202,8 +144,8 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                                     <div className="flex items-center gap-4">
                                         <h3 className="text-lg font-semibold">Details for {format(new Date(m.date), 'PPPP')}</h3>
                                         <div className="flex items-center gap-2">
-                                            <Badge variant={getPaymentStatusVariant(m.paymentStatus)} className={cn(m.paymentStatus === 'Paid' && 'bg-green-600')}>{m.paymentStatus}</Badge>
-                                            <Badge variant={getCompletionStatusVariant(m.completionStatus)} className={cn(m.completionStatus === 'Completed' && 'bg-green-600')}>{m.completionStatus}</Badge>
+                                            <Badge variant={getPaymentStatusVariant(m.payment_status)} className={cn(m.payment_status === 'Paid' && 'bg-green-600')}>{m.payment_status}</Badge>
+                                            <Badge variant={getCompletionStatusVariant(m.completion_status)} className={cn(m.completion_status === 'Completed' && 'bg-green-600')}>{m.completion_status}</Badge>
                                         </div>
                                     </div>
                                     <Button variant="outline" size="sm" onClick={() => setEditingMeasurement(m)}>

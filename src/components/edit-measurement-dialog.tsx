@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { format } from "date-fns"
 
-import { useCustomerStore, Measurement } from "@/lib/store"
+import { type Measurement } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -36,6 +36,8 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "./ui/scroll-area"
 import { Separator } from "./ui/separator"
+import { createClient } from "@/lib/supabase-client"
+import { useRouter } from "next/navigation"
 
 const optionalNonNegativeNumber = z.union([z.literal("").transform(() => null), z.coerce.number().nonnegative()]).nullable();
 
@@ -46,42 +48,42 @@ const measurementSchema = {
     waist: optionalNonNegativeNumber,
     hips: optionalNonNegativeNumber,
     shoulder: optionalNonNegativeNumber,
-    neckWidth: optionalNonNegativeNumber,
+    neck_width: optionalNonNegativeNumber,
     underbust: optionalNonNegativeNumber,
-    nippleToNipple: optionalNonNegativeNumber,
-    singleShoulder: optionalNonNegativeNumber,
-    frontDrop: optionalNonNegativeNumber,
-    backDrop: optionalNonNegativeNumber,
-    sleeveLength: optionalNonNegativeNumber,
-    upperarmWidth: optionalNonNegativeNumber,
-    armholeCurve: optionalNonNegativeNumber,
-    armholeCurveStraight: optionalNonNegativeNumber,
-    shoulderToWrist: optionalNonNegativeNumber,
-    shoulderToElbow: optionalNonNegativeNumber,
-    innerArmLength: optionalNonNegativeNumber,
-    sleeveOpening: optionalNonNegativeNumber,
-    cuffHeight: optionalNonNegativeNumber,
-    inseamLength: optionalNonNegativeNumber,
-    outseamLength: optionalNonNegativeNumber,
-    waistToKneeLength: optionalNonNegativeNumber,
-    waistToAnkle: optionalNonNegativeNumber,
-    thighCirc: optionalNonNegativeNumber,
-    ankleCirc: optionalNonNegativeNumber,
-    backRise: optionalNonNegativeNumber,
-    frontRise: optionalNonNegativeNumber,
-    legOpening: optionalNonNegativeNumber,
-    seatLength: optionalNonNegativeNumber,
-    neckBandWidth: optionalNonNegativeNumber,
-    collarWidth: optionalNonNegativeNumber,
-    collarPoint: optionalNonNegativeNumber,
-    waistBand: optionalNonNegativeNumber,
-    shoulderToWaist: optionalNonNegativeNumber,
-    shoulderToAnkle: optionalNonNegativeNumber,
+    nipple_to_nipple: optionalNonNegativeNumber,
+    single_shoulder: optionalNonNegativeNumber,
+    front_drop: optionalNonNegativeNumber,
+    back_drop: optionalNonNegativeNumber,
+    sleeve_length: optionalNonNegativeNumber,
+    upperarm_width: optionalNonNegativeNumber,
+    armhole_curve: optionalNonNegativeNumber,
+    armhole_curve_straight: optionalNonNegativeNumber,
+    shoulder_to_wrist: optionalNonNegativeNumber,
+    shoulder_to_elbow: optionalNonNegativeNumber,
+    inner_arm_length: optionalNonNegativeNumber,
+    sleeve_opening: optionalNonNegativeNumber,
+    cuff_height: optionalNonNegativeNumber,
+    inseam_length: optionalNonNegativeNumber,
+    outseam_length: optionalNonNegativeNumber,
+    waist_to_knee_length: optionalNonNegativeNumber,
+    waist_to_ankle: optionalNonNegativeNumber,
+    thigh_circ: optionalNonNegativeNumber,
+    ankle_circ: optionalNonNegativeNumber,
+    back_rise: optionalNonNegativeNumber,
+    front_rise: optionalNonNegativeNumber,
+    leg_opening: optionalNonNegativeNumber,
+    seat_length: optionalNonNegativeNumber,
+    neck_band_width: optionalNonNegativeNumber,
+    collar_width: optionalNonNegativeNumber,
+    collar_point: optionalNonNegativeNumber,
+    waist_band: optionalNonNegativeNumber,
+    shoulder_to_waist: optionalNonNegativeNumber,
+    shoulder_to_ankle: optionalNonNegativeNumber,
 };
 
 const formSchema = z.object({
-  paymentStatus: z.enum(["Paid", "Unpaid", "Partial"]),
-  completionStatus: z.enum(["Pending", "In Progress", "Completed"]),
+  payment_status: z.enum(["Paid", "Unpaid", "Partial"]),
+  completion_status: z.enum(["Pending", "In Progress", "Completed"]),
   ...measurementSchema
 })
 
@@ -93,9 +95,9 @@ type EditMeasurementDialogProps = {
 }
 
 export function EditMeasurementDialog({ open, onOpenChange, customerId, measurement }: EditMeasurementDialogProps) {
-  const { updateMeasurement, customers } = useCustomerStore()
-  const customer = customers.find(c => c.id === customerId);
   const { toast } = useToast()
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -106,13 +108,29 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
     form.reset(measurement)
   }, [measurement, form])
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    updateMeasurement(customerId, { ...measurement, ...values })
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true)
+    const supabase = createClient()
+    
+    const { error } = await supabase
+        .from('measurements')
+        .update(values)
+        .eq('id', measurement.id)
+
+    if (error) {
+        toast({ variant: "destructive", title: "Error updating measurement", description: error.message })
+        setIsSubmitting(false)
+        return
+    }
+
     toast({
         title: "Measurement Updated",
-        description: `The measurement from ${format(new Date(measurement.date), 'PP')} has been updated for ${customer?.name}.`,
+        description: `The measurement from ${format(new Date(measurement.date), 'PP')} has been updated.`,
     })
+
     onOpenChange(false)
+    setIsSubmitting(false)
+    router.refresh()
   }
 
   function handleCancel() {
@@ -131,7 +149,7 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>Edit Measurement</DialogTitle>
           <DialogDescription>
-            Editing measurement for {customer?.name} from {format(new Date(measurement.date), 'PPPP')}. All values are in inches.
+            Editing measurement from {format(new Date(measurement.date), 'PPPP')}. All values are in inches.
           </DialogDescription>
         </DialogHeader>
 
@@ -144,7 +162,7 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="paymentStatus"
+                                    name="payment_status"
                                     render={({ field }) => (
                                         <FormItem>
                                         <FormLabel>Payment Status</FormLabel>
@@ -166,7 +184,7 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="completionStatus"
+                                    name="completion_status"
                                     render={({ field }) => (
                                         <FormItem>
                                         <FormLabel>Completion Status</FormLabel>
@@ -202,43 +220,43 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
 
                                 <h4 className="col-span-full font-medium text-base mt-4">Upper Body</h4>
                                 {renderMeasurementField("shoulder", "Shoulder")}
-                                {renderMeasurementField("neckWidth", "Neck Width")}
+                                {renderMeasurementField("neck_width", "Neck Width")}
                                 {renderMeasurementField("underbust", "Underbust")}
-                                {renderMeasurementField("nippleToNipple", "Nipple to Nipple")}
-                                {renderMeasurementField("singleShoulder", "Single Shoulder")}
-                                {renderMeasurementField("frontDrop", "Front Drop")}
-                                {renderMeasurementField("backDrop", "Back Drop")}
+                                {renderMeasurementField("nipple_to_nipple", "Nipple to Nipple")}
+                                {renderMeasurementField("single_shoulder", "Single Shoulder")}
+                                {renderMeasurementField("front_drop", "Front Drop")}
+                                {renderMeasurementField("back_drop", "Back Drop")}
                                 
                                 <h4 className="col-span-full font-medium text-base mt-4">Arm</h4>
-                                {renderMeasurementField("sleeveLength", "Sleeve Length")}
-                                {renderMeasurementField("upperarmWidth", "Upperarm Width")}
-                                {renderMeasurementField("armholeCurve", "Armhole Curve")}
-                                {renderMeasurementField("armholeCurveStraight", "Armhole Curve Straight")}
-                                {renderMeasurementField("shoulderToWrist", "Shoulder to Wrist")}
-                                {renderMeasurementField("shoulderToElbow", "Shoulder to Elbow")}
-                                {renderMeasurementField("innerArmLength", "Inner Arm Length")}
-                                {renderMeasurementField("sleeveOpening", "Sleeve Opening")}
-                                {renderMeasurementField("cuffHeight", "Cuff Height")}
+                                {renderMeasurementField("sleeve_length", "Sleeve Length")}
+                                {renderMeasurementField("upperarm_width", "Upperarm Width")}
+                                {renderMeasurementField("armhole_curve", "Armhole Curve")}
+                                {renderMeasurementField("armhole_curve_straight", "Armhole Curve Straight")}
+                                {renderMeasurementField("shoulder_to_wrist", "Shoulder to Wrist")}
+                                {renderMeasurementField("shoulder_to_elbow", "Shoulder to Elbow")}
+                                {renderMeasurementField("inner_arm_length", "Inner Arm Length")}
+                                {renderMeasurementField("sleeve_opening", "Sleeve Opening")}
+                                {renderMeasurementField("cuff_height", "Cuff Height")}
                                 
                                 <h4 className="col-span-full font-medium text-base mt-4">Lower Body</h4>
-                                {renderMeasurementField("inseamLength", "Inseam Length")}
-                                {renderMeasurementField("outseamLength", "Outseam Length")}
-                                {renderMeasurementField("waistToKneeLength", "Waist to Knee Length")}
-                                {renderMeasurementField("waistToAnkle", "Waist to Ankle")}
-                                {renderMeasurementField("thighCirc", "Thigh Circ.")}
-                                {renderMeasurementField("ankleCirc", "Ankle Circ.")}
-                                {renderMeasurementField("backRise", "Back Rise")}
-                                {renderMeasurementField("frontRise", "Front Rise")}
-                                {renderMeasurementField("legOpening", "Leg Opening")}
-                                {renderMeasurementField("seatLength", "Seat Length")}
+                                {renderMeasurementField("inseam_length", "Inseam Length")}
+                                {renderMeasurementField("outseam_length", "Outseam Length")}
+                                {renderMeasurementField("waist_to_knee_length", "Waist to Knee Length")}
+                                {renderMeasurementField("waist_to_ankle", "Waist to Ankle")}
+                                {renderMeasurementField("thigh_circ", "Thigh Circ.")}
+                                {renderMeasurementField("ankle_circ", "Ankle Circ.")}
+                                {renderMeasurementField("back_rise", "Back Rise")}
+                                {renderMeasurementField("front_rise", "Front Rise")}
+                                {renderMeasurementField("leg_opening", "Leg Opening")}
+                                {renderMeasurementField("seat_length", "Seat Length")}
                                 
                                 <h4 className="col-span-full font-medium text-base mt-4">Garment Specific</h4>
-                                {renderMeasurementField("neckBandWidth", "Neck Band Width")}
-                                {renderMeasurementField("collarWidth", "Collar Width")}
-                                {renderMeasurementField("collarPoint", "Collar Point")}
-                                {renderMeasurementField("waistBand", "Waist Band")}
-                                {renderMeasurementField("shoulderToWaist", "Shoulder to Waist")}
-                                {renderMeasurementField("shoulderToAnkle", "Shoulder to Ankle")}
+                                {renderMeasurementField("neck_band_width", "Neck Band Width")}
+                                {renderMeasurementField("collar_width", "Collar Width")}
+                                {renderMeasurementField("collar_point", "Collar Point")}
+                                {renderMeasurementField("waist_band", "Waist Band")}
+                                {renderMeasurementField("shoulder_to_waist", "Shoulder to Waist")}
+                                {renderMeasurementField("shoulder_to_ankle", "Shoulder to Ankle")}
                             </div>
                         </div>
                     </form>
@@ -247,8 +265,8 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
         </ScrollArea>
 
         <DialogFooter className="p-6 pt-4 border-t sm:justify-start">
-            <Button type="submit" form="edit-measurement-form">Save Changes</Button>
-            <Button type="button" variant="outline" onClick={handleCancel}>Cancel</Button>
+            <Button type="submit" form="edit-measurement-form" disabled={isSubmitting}>{isSubmitting ? "Saving..." : "Save Changes"}</Button>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>Cancel</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
