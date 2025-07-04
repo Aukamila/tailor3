@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { useUserStore } from "@/lib/user-store"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -39,6 +40,7 @@ export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = React.useState(false)
+  const addUser = useUserStore((state) => state.addUser)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,9 +53,9 @@ export default function SignupPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // Mock user creation
+    // Create user in the store
     setTimeout(() => {
-        console.log("New user created:", values.name, values.email);
+        addUser({ name: values.name, email: values.email, password: values.password });
         toast({
             title: "Account Created",
             description: "You can now sign in with your new account.",

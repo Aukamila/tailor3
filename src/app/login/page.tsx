@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { useUserStore } from "@/lib/user-store"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -38,6 +39,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = React.useState(false)
+  const findUserByEmail = useUserStore((state) => state.findUserByEmail)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,9 +51,10 @@ export default function LoginPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // Mock authentication
+    
     setTimeout(() => {
-      if (values.email === "owner@stitch.link" && values.password === "password123") {
+      const user = findUserByEmail(values.email);
+      if (user && user.password === values.password) {
         toast({
           title: "Login Successful",
           description: "Welcome back!",
@@ -115,8 +118,7 @@ export default function LoginPage() {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex-col gap-4 text-sm">
-             <p className="text-muted-foreground">Use <span className="font-semibold text-foreground">owner@stitch.link</span> and <span className="font-semibold text-foreground">password123</span></p>
+          <CardFooter className="flex justify-center text-sm">
              <p className="text-muted-foreground">
                 Don't have an account?{" "}
                 <Button variant="link" asChild className="p-0 h-auto">
