@@ -4,7 +4,8 @@
 import * as React from "react"
 import { UserPlus, Scissors } from "lucide-react"
 import Link from "next/link"
-import { useFormState, useFormStatus } from "react-dom"
+import { useFormStatus } from "react-dom"
+import { useActionState } from "react"
 import { signup } from "../actions"
 
 import { Button } from "@/components/ui/button"
@@ -31,7 +32,7 @@ function SubmitButton() {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useFormState(signup, undefined)
+  const [state, formAction] = useActionState(signup, undefined)
   const { toast } = useToast()
 
   React.useEffect(() => {
