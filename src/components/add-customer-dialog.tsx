@@ -76,6 +76,7 @@ const measurementSchema = {
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  nic: z.string().min(10, { message: "Please enter a valid NIC number."}),
   email: z.string().email(),
   phone: z.string().min(10, { message: "Phone number is too short." }),
   jobNumber: z.string().min(1, { message: "Job number is required." }),
@@ -101,6 +102,7 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
       name: "",
       email: "",
       phone: "",
+      nic: "",
       jobNumber: "",
       requestDate: undefined,
       height: null, neck: null, chest: null, waist: null, hips: null, shoulder: null,
@@ -117,8 +119,8 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const { name, email, phone, jobNumber, requestDate, ...measurements } = values;
-    addCustomer({ name, email, phone, jobNumber, requestDate: requestDate.toISOString() }, measurements)
+    const { name, email, phone, nic, jobNumber, requestDate, ...measurements } = values;
+    addCustomer({ name, email, phone, nic, jobNumber, requestDate: requestDate.toISOString() }, measurements)
     toast({
         title: "Customer Added",
         description: `${name} has been successfully added to your records.`,
@@ -155,19 +157,34 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
               <form id="add-customer-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <div className="space-y-4">
                       <h3 className="font-semibold">Contact Information</h3>
-                      <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                              <Input placeholder="e.g., John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Full Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., John Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="nic"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>NIC Number</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., 199012345678" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                           control={form.control}

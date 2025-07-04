@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar } from "lucide-react"
+import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar, CreditCard } from "lucide-react"
 import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -20,7 +20,7 @@ function CustomerDetailSkeleton() {
                 <Skeleton className="h-16 w-16 rounded-full" />
                 <div className="space-y-2">
                     <Skeleton className="h-8 w-48" />
-                    <Skeleton className="h-4 w-[400px]" />
+                    <Skeleton className="h-4 w-[500px]" />
                 </div>
             </div>
             <Card>
@@ -91,6 +91,7 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" /> {customer.email}</span>
                 <span className="flex items-center gap-1.5"><Phone className="h-4 w-4" /> {customer.phone}</span>
+                <span className="flex items-center gap-1.5"><CreditCard className="h-4 w-4" /> {customer.nic}</span>
                 <span className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> {customer.jobNumber}</span>
                 <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> Requested on {format(new Date(customer.requestDate), 'PP')}</span>
               </div>

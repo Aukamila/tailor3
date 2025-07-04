@@ -58,6 +58,7 @@ export interface Customer {
   name: string;
   email: string;
   phone: string;
+  nic: string;
   jobNumber: string;
   requestDate: string;
   measurements: Measurement[];
@@ -89,6 +90,7 @@ const initialCustomers: Customer[] = [
     name: 'Eleanor Vance',
     email: 'eleanor.vance@example.com',
     phone: '202-555-0181',
+    nic: '199012345678',
     jobNumber: 'JOB-001',
     requestDate: new Date('2023-10-01T10:00:00Z').toISOString(),
     measurements: [
@@ -101,6 +103,7 @@ const initialCustomers: Customer[] = [
     name: 'Marcus Thorne',
     email: 'marcus.thorne@example.com',
     phone: '312-555-0142',
+    nic: '198512345678',
     jobNumber: 'JOB-002',
     requestDate: new Date('2024-03-25T14:00:00Z').toISOString(),
     measurements: [
@@ -112,6 +115,7 @@ const initialCustomers: Customer[] = [
     name: 'Isabelle Rossi',
     email: 'isabelle.rossi@example.com',
     phone: '415-555-0199',
+    nic: '199512345678',
     jobNumber: 'JOB-003',
     requestDate: new Date('2024-05-15T09:45:00Z').toISOString(),
     measurements: [

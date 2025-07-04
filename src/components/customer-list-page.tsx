@@ -65,6 +65,7 @@ function CustomerListSkeleton() {
                                                 <div className="grid gap-1">
                                                     <Skeleton className="h-4 w-24" />
                                                     <Skeleton className="h-3 w-32" />
+                                                    <Skeleton className="h-3 w-24" />
                                                     <Skeleton className="h-3 w-28" />
                                                 </div>
                                             </div>
@@ -95,7 +96,8 @@ export function CustomerListPage() {
   const customers = useCustomerStore((state) => state.customers)
 
   const filteredCustomers = customers.filter((customer) =>
-    customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    customer.nic.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   if (!isClient) {
@@ -125,7 +127,7 @@ export function CustomerListPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name..."
+                placeholder="Search by name or NIC..."
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -155,6 +157,7 @@ export function CustomerListPage() {
                           <div className="grid gap-0.5">
                             <span className="font-medium">{customer.name}</span>
                             <span className="text-sm text-muted-foreground">{customer.email}</span>
+                            <span className="text-sm text-muted-foreground font-mono">{customer.nic}</span>
                              <span className="text-xs text-muted-foreground">
                                 Requested on {format(new Date(customer.requestDate), 'PP')}
                             </span>
