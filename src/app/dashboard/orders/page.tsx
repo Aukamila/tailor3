@@ -1,8 +1,10 @@
+
 import { OrderListPage } from '@/components/order-list-page';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { Customer, Measurement } from '@/lib/types';
+import type { Database } from '@/lib/database.types';
 
 type Order = {
   customerId: string;
@@ -19,7 +21,7 @@ type Order = {
 
 export default async function OrdersPage() {
   const cookieStore = cookies();
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -46,8 +48,8 @@ export default async function OrdersPage() {
     return <OrderListPage initialOrders={[]} />;
   }
 
-  const allOrders: Order[] = (customers || []).flatMap((customer: Customer) =>
-    (customer.measurements || []).map((measurement: Measurement) => ({
+  const allOrders: Order[] = (customers || []).flatMap((customer: any) =>
+    (customer.measurements || []).map((measurement: any) => ({
       customerId: customer.id,
       customerName: customer.name,
       customerEmail: customer.email,

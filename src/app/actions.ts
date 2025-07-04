@@ -5,10 +5,11 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
+import type { Database } from '@/lib/database.types'
 
 export async function login(formData: FormData) {
   const cookieStore = cookies()
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -48,7 +49,7 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const cookieStore = cookies()
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -74,6 +75,7 @@ export async function signup(formData: FormData) {
     return { error: 'Name, email, and password are required.' }
   }
 
+  // Disable email confirmation by default
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -81,7 +83,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: name,
       },
-      // emailRedirectTo is removed to disable email verification by default
+      emailRedirectTo: `${new URL(process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:9002').origin}/auth/callback`,
     },
   })
 
@@ -106,7 +108,7 @@ export async function signup(formData: FormData) {
 
 export async function signOut() {
   const cookieStore = cookies()
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

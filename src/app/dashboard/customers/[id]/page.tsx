@@ -1,12 +1,14 @@
+
 import { CustomerDetailView } from "@/components/customer-detail-view";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import type { Customer } from "@/lib/types";
+import type { Database } from "@/lib/database.types";
 
 export default async function CustomerPage({ params }: { params: { id: string }}) {
     const cookieStore = cookies();
-    const supabase = createServerClient(
+    const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {

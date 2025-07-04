@@ -1,12 +1,14 @@
+
 import { CustomerListPage } from '@/components/customer-list-page';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { Customer } from '@/lib/types';
+import type { Database } from '@/lib/database.types';
 
 export default async function DashboardPage() {
   const cookieStore = cookies();
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -35,7 +37,7 @@ export default async function DashboardPage() {
     // Optionally, render an error state
   }
 
-  const customers: Customer[] = customersData || [];
+  const customers: Customer[] = (customersData as any) || [];
 
   return <CustomerListPage initialCustomers={customers} />;
 }
