@@ -10,7 +10,7 @@ import {
   SidebarFooter,
   SidebarInset,
 } from "@/components/ui/sidebar"
-import { CircleUser, Home, Scissors, Users } from "lucide-react"
+import { CircleUser, Home, Scissors, Users, ClipboardList } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -33,6 +33,14 @@ export default function DashboardLayout({
                 <Link href="/dashboard">
                   <Users />
                   <span>Customers</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Orders">
+                <Link href="/dashboard/orders">
+                  <ClipboardList />
+                  <span>Orders</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
