@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
-import { useUserStore } from "@/lib/user-store"
+import { createClient } from "@/lib/supabase/client"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -40,7 +40,6 @@ export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = React.useState(false)
-  const addUser = useUserStore((state) => state.addUser)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,17 +50,35 @@ export default function SignupPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // Create user in the store
-    setTimeout(() => {
-        addUser({ name: values.name, email: values.email, password: values.password });
-        toast({
-            title: "Account Created",
-            description: "You can now sign in with your new account.",
-        })
-        router.push("/login")
-    }, 1000)
+    const supabase = createClient()
+    
+    const { error } = await supabase.auth.signUp({
+      email: values.email,
+      password: values.password,
+      options: {
+        data: {
+          name: values.name,
+        },
+        emailRedirectTo: `${location.origin}/auth/callback`,
+      }
+    })
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign Up Failed",
+        description: error.message,
+      })
+      setIsLoading(false)
+    } else {
+      toast({
+          title: "Account Created",
+          description: "Please check your email to verify your account.",
+      })
+      router.push("/login")
+    }
   }
 
   return (

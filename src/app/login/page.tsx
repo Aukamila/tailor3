@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
-import { useUserStore } from "@/lib/user-store"
+import { createClient } from "@/lib/supabase/client"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -39,8 +39,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = React.useState(false)
-  const findUserByEmail = useUserStore((state) => state.findUserByEmail)
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,26 +48,27 @@ export default function LoginPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
+    const supabase = createClient()
     
-    setTimeout(() => {
-      const user = findUserByEmail(values.email);
-      if (user && user.password === values.password) {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        })
-        router.push("/dashboard")
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: "Invalid email or password. Please try again.",
-        })
-        setIsLoading(false)
-      }
-    }, 1000)
+    const { error } = await supabase.auth.signInWithPassword(values)
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message,
+      })
+      setIsLoading(false)
+    } else {
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      })
+      router.refresh()
+      router.push("/dashboard")
+    }
   }
 
   return (
