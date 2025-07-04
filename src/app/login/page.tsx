@@ -66,7 +66,6 @@ export default function LoginPage() {
         title: "Login Successful",
         description: "Welcome back!",
       })
-      router.refresh()
       router.push("/dashboard")
     }
   }
