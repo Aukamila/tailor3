@@ -97,7 +97,7 @@ export function CustomerListPage() {
 
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.nic.toLowerCase().includes(searchQuery.toLowerCase())
+    (customer.nic || "").toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   if (!isClient) {
