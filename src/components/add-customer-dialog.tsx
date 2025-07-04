@@ -126,6 +126,11 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
     onOpenChange(false)
     form.reset()
   }
+  
+  function handleCancel() {
+    onOpenChange(false);
+    form.reset();
+  }
 
   const renderMeasurementField = (name: keyof typeof measurementSchema, label: string) => (
     <FormField name={name} control={form.control} render={({ field }) => (
@@ -136,185 +141,186 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[800px] grid-rows-[auto,1fr,auto] max-h-[90vh] p-0">
+        <DialogHeader className="p-6 pb-4">
           <DialogTitle>Add New Customer</DialogTitle>
           <DialogDescription>
             Enter customer details and their first set of measurements.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <ScrollArea className="max-h-[60vh]">
-                <div className="space-y-6 p-4 pr-6">
-                    <div className="space-y-4">
-                        <h3 className="font-semibold">Contact Information</h3>
-                        <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g., john.doe@example.com" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                        <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Phone Number</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g., 123-456-7890" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                        </div>
-                    </div>
+        
+        <ScrollArea className="overflow-y-auto">
+          <div className="px-6 space-y-6">
+            <Form {...form}>
+              <form id="add-customer-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="space-y-4">
+                      <h3 className="font-semibold">Contact Information</h3>
+                      <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                              <Input placeholder="e.g., John Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                  <Input placeholder="e.g., john.doe@example.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                          />
+                      <FormField
+                          control={form.control}
+                          name="phone"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Phone Number</FormLabel>
+                              <FormControl>
+                                  <Input placeholder="e.g., 123-456-7890" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                          />
+                      </div>
+                  </div>
 
-                    <Separator />
+                  <Separator />
 
-                    <div className="space-y-4">
-                        <h3 className="font-semibold">Job Details</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="jobNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Job Number</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., JOB-001" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="requestDate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col pt-2">
-                                        <FormLabel>Request Date</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-full pl-3 text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {field.value ? (
-                                                            format(field.value, "PPP")
-                                                        ) : (
-                                                            <span>Pick a date</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value}
-                                                    onSelect={field.onChange}
-                                                    disabled={(date) =>
-                                                        date > new Date() || date < new Date("1900-01-01")
-                                                    }
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
+                  <div className="space-y-4">
+                      <h3 className="font-semibold">Job Details</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                              control={form.control}
+                              name="jobNumber"
+                              render={({ field }) => (
+                                  <FormItem>
+                                      <FormLabel>Job Number</FormLabel>
+                                      <FormControl>
+                                          <Input placeholder="e.g., JOB-001" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="requestDate"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-col pt-2">
+                                      <FormLabel>Request Date</FormLabel>
+                                      <Popover>
+                                          <PopoverTrigger asChild>
+                                              <FormControl>
+                                                  <Button
+                                                      variant={"outline"}
+                                                      className={cn(
+                                                          "w-full pl-3 text-left font-normal",
+                                                          !field.value && "text-muted-foreground"
+                                                      )}
+                                                  >
+                                                      {field.value ? (
+                                                          format(field.value, "PPP")
+                                                      ) : (
+                                                          <span>Pick a date</span>
+                                                      )}
+                                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                  </Button>
+                                              </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0" align="start">
+                                              <Calendar
+                                                  mode="single"
+                                                  selected={field.value}
+                                                  onSelect={field.onChange}
+                                                  disabled={(date) =>
+                                                      date > new Date() || date < new Date("1900-01-01")
+                                                  }
+                                                  initialFocus
+                                              />
+                                          </PopoverContent>
+                                      </Popover>
+                                      <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                      </div>
+                  </div>
 
-                    <Separator />
-                    
-                    <div className="space-y-4">
-                        <h3 className="font-semibold">Initial Measurements (in inches)</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
-                            <h4 className="col-span-full font-medium text-base mt-2">Core</h4>
-                            {renderMeasurementField("height", "Height")}
-                            {renderMeasurementField("neck", "Neck")}
-                            {renderMeasurementField("chest", "Chest")}
-                            {renderMeasurementField("waist", "Waist")}
-                            {renderMeasurementField("hips", "Hips")}
+                  <Separator />
+                  
+                  <div className="space-y-4">
+                      <h3 className="font-semibold">Initial Measurements (in inches)</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
+                          <h4 className="col-span-full font-medium text-base mt-2">Core</h4>
+                          {renderMeasurementField("height", "Height")}
+                          {renderMeasurementField("neck", "Neck")}
+                          {renderMeasurementField("chest", "Chest")}
+                          {renderMeasurementField("waist", "Waist")}
+                          {renderMeasurementField("hips", "Hips")}
 
-                            <h4 className="col-span-full font-medium text-base mt-4">Upper Body</h4>
-                            {renderMeasurementField("shoulder", "Shoulder")}
-                            {renderMeasurementField("neckWidth", "Neck Width")}
-                            {renderMeasurementField("underbust", "Underbust")}
-                            {renderMeasurementField("nippleToNipple", "Nipple to Nipple")}
-                            {renderMeasurementField("singleShoulder", "Single Shoulder")}
-                            {renderMeasurementField("frontDrop", "Front Drop")}
-                            {renderMeasurementField("backDrop", "Back Drop")}
-                            
-                            <h4 className="col-span-full font-medium text-base mt-4">Arm</h4>
-                            {renderMeasurementField("sleeveLength", "Sleeve Length")}
-                            {renderMeasurementField("upperarmWidth", "Upperarm Width")}
-                            {renderMeasurementField("armholeCurve", "Armhole Curve")}
-                            {renderMeasurementField("armholeCurveStraight", "Armhole Curve Straight")}
-                            {renderMeasurementField("shoulderToWrist", "Shoulder to Wrist")}
-                            {renderMeasurementField("shoulderToElbow", "Shoulder to Elbow")}
-                            {renderMeasurementField("innerArmLength", "Inner Arm Length")}
-                            {renderMeasurementField("sleeveOpening", "Sleeve Opening")}
-                            {renderMeasurementField("cuffHeight", "Cuff Height")}
-                            
-                            <h4 className="col-span-full font-medium text-base mt-4">Lower Body</h4>
-                            {renderMeasurementField("inseamLength", "Inseam Length")}
-                            {renderMeasurementField("outseamLength", "Outseam Length")}
-                            {renderMeasurementField("waistToKneeLength", "Waist to Knee Length")}
-                            {renderMeasurementField("waistToAnkle", "Waist to Ankle")}
-                            {renderMeasurementField("thighCirc", "Thigh Circ.")}
-                            {renderMeasurementField("ankleCirc", "Ankle Circ.")}
-                            {renderMeasurementField("backRise", "Back Rise")}
-                            {renderMeasurementField("frontRise", "Front Rise")}
-                            {renderMeasurementField("legOpening", "Leg Opening")}
-                            {renderMeasurementField("seatLength", "Seat Length")}
-                            
-                            <h4 className="col-span-full font-medium text-base mt-4">Garment Specific</h4>
-                            {renderMeasurementField("neckBandWidth", "Neck Band Width")}
-                            {renderMeasurementField("collarWidth", "Collar Width")}
-                            {renderMeasurementField("collarPoint", "Collar Point")}
-                            {renderMeasurementField("waistBand", "Waist Band")}
-                            {renderMeasurementField("shoulderToWaist", "Shoulder to Waist")}
-                            {renderMeasurementField("shoulderToAnkle", "Shoulder to Ankle")}
-                        </div>
-                    </div>
-                </div>
-            </ScrollArea>
-            <DialogFooter className="pt-6 sm:justify-start">
-                <Button type="submit">Save Customer</Button>
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                          <h4 className="col-span-full font-medium text-base mt-4">Upper Body</h4>
+                          {renderMeasurementField("shoulder", "Shoulder")}
+                          {renderMeasurementField("neckWidth", "Neck Width")}
+                          {renderMeasurementField("underbust", "Underbust")}
+                          {renderMeasurementField("nippleToNipple", "Nipple to Nipple")}
+                          {renderMeasurementField("singleShoulder", "Single Shoulder")}
+                          {renderMeasurementField("frontDrop", "Front Drop")}
+                          {renderMeasurementField("backDrop", "Back Drop")}
+                          
+                          <h4 className="col-span-full font-medium text-base mt-4">Arm</h4>
+                          {renderMeasurementField("sleeveLength", "Sleeve Length")}
+                          {renderMeasurementField("upperarmWidth", "Upperarm Width")}
+                          {renderMeasurementField("armholeCurve", "Armhole Curve")}
+                          {renderMeasurementField("armholeCurveStraight", "Armhole Curve Straight")}
+                          {renderMeasurementField("shoulderToWrist", "Shoulder to Wrist")}
+                          {renderMeasurementField("shoulderToElbow", "Shoulder to Elbow")}
+                          {renderMeasurementField("innerArmLength", "Inner Arm Length")}
+                          {renderMeasurementField("sleeveOpening", "Sleeve Opening")}
+                          {renderMeasurementField("cuffHeight", "Cuff Height")}
+                          
+                          <h4 className="col-span-full font-medium text-base mt-4">Lower Body</h4>
+                          {renderMeasurementField("inseamLength", "Inseam Length")}
+                          {renderMeasurementField("outseamLength", "Outseam Length")}
+                          {renderMeasurementField("waistToKneeLength", "Waist to Knee Length")}
+                          {renderMeasurementField("waistToAnkle", "Waist to Ankle")}
+                          {renderMeasurementField("thighCirc", "Thigh Circ.")}
+                          {renderMeasurementField("ankleCirc", "Ankle Circ.")}
+                          {renderMeasurementField("backRise", "Back Rise")}
+                          {renderMeasurementField("frontRise", "Front Rise")}
+                          {renderMeasurementField("legOpening", "Leg Opening")}
+                          {renderMeasurementField("seatLength", "Seat Length")}
+                          
+                          <h4 className="col-span-full font-medium text-base mt-4">Garment Specific</h4>
+                          {renderMeasurementField("neckBandWidth", "Neck Band Width")}
+                          {renderMeasurementField("collarWidth", "Collar Width")}
+                          {renderMeasurementField("collarPoint", "Collar Point")}
+                          {renderMeasurementField("waistBand", "Waist Band")}
+                          {renderMeasurementField("shoulderToWaist", "Shoulder to Waist")}
+                          {renderMeasurementField("shoulderToAnkle", "Shoulder to Ankle")}
+                      </div>
+                  </div>
+              </form>
+            </Form>
+          </div>
+        </ScrollArea>
+        <DialogFooter className="p-6 pt-4 border-t sm:justify-start">
+            <Button type="submit" form="add-customer-form">Save Customer</Button>
+            <Button type="button" variant="outline" onClick={handleCancel}>Cancel</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

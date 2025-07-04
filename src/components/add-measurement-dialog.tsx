@@ -107,6 +107,11 @@ export function AddMeasurementDialog({ children, open, onOpenChange, customerId 
     onOpenChange(false)
     form.reset()
   }
+
+  function handleCancel() {
+    onOpenChange(false);
+    form.reset();
+  }
   
   const renderMeasurementField = (name: keyof typeof measurementSchema, label: string) => (
     <FormField name={name} control={form.control} render={({ field }) => (
@@ -117,73 +122,75 @@ export function AddMeasurementDialog({ children, open, onOpenChange, customerId 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[800px] grid-rows-[auto,1fr,auto] max-h-[90vh] p-0">
+        <DialogHeader className="p-6 pb-4">
           <DialogTitle>Add New Measurement</DialogTitle>
           <DialogDescription>
             Enter new measurements for {customer?.name}. All values are in inches.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-             <ScrollArea className="max-h-[60vh]">
-                 <div className="space-y-4 p-4 pr-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
-                        <h4 className="col-span-full font-medium text-base mt-2">Core</h4>
-                        {renderMeasurementField("height", "Height")}
-                        {renderMeasurementField("neck", "Neck")}
-                        {renderMeasurementField("chest", "Chest")}
-                        {renderMeasurementField("waist", "Waist")}
-                        {renderMeasurementField("hips", "Hips")}
 
-                        <h4 className="col-span-full font-medium text-base mt-4">Upper Body</h4>
-                        {renderMeasurementField("shoulder", "Shoulder")}
-                        {renderMeasurementField("neckWidth", "Neck Width")}
-                        {renderMeasurementField("underbust", "Underbust")}
-                        {renderMeasurementField("nippleToNipple", "Nipple to Nipple")}
-                        {renderMeasurementField("singleShoulder", "Single Shoulder")}
-                        {renderMeasurementField("frontDrop", "Front Drop")}
-                        {renderMeasurementField("backDrop", "Back Drop")}
-                        
-                        <h4 className="col-span-full font-medium text-base mt-4">Arm</h4>
-                        {renderMeasurementField("sleeveLength", "Sleeve Length")}
-                        {renderMeasurementField("upperarmWidth", "Upperarm Width")}
-                        {renderMeasurementField("armholeCurve", "Armhole Curve")}
-                        {renderMeasurementField("armholeCurveStraight", "Armhole Curve Straight")}
-                        {renderMeasurementField("shoulderToWrist", "Shoulder to Wrist")}
-                        {renderMeasurementField("shoulderToElbow", "Shoulder to Elbow")}
-                        {renderMeasurementField("innerArmLength", "Inner Arm Length")}
-                        {renderMeasurementField("sleeveOpening", "Sleeve Opening")}
-                        {renderMeasurementField("cuffHeight", "Cuff Height")}
-                        
-                        <h4 className="col-span-full font-medium text-base mt-4">Lower Body</h4>
-                        {renderMeasurementField("inseamLength", "Inseam Length")}
-                        {renderMeasurementField("outseamLength", "Outseam Length")}
-                        {renderMeasurementField("waistToKneeLength", "Waist to Knee Length")}
-                        {renderMeasurementField("waistToAnkle", "Waist to Ankle")}
-                        {renderMeasurementField("thighCirc", "Thigh Circ.")}
-                        {renderMeasurementField("ankleCirc", "Ankle Circ.")}
-                        {renderMeasurementField("backRise", "Back Rise")}
-                        {renderMeasurementField("frontRise", "Front Rise")}
-                        {renderMeasurementField("legOpening", "Leg Opening")}
-                        {renderMeasurementField("seatLength", "Seat Length")}
-                        
-                        <h4 className="col-span-full font-medium text-base mt-4">Garment Specific</h4>
-                        {renderMeasurementField("neckBandWidth", "Neck Band Width")}
-                        {renderMeasurementField("collarWidth", "Collar Width")}
-                        {renderMeasurementField("collarPoint", "Collar Point")}
-                        {renderMeasurementField("waistBand", "Waist Band")}
-                        {renderMeasurementField("shoulderToWaist", "Shoulder to Waist")}
-                        {renderMeasurementField("shoulderToAnkle", "Shoulder to Ankle")}
-                    </div>
-                 </div>
-            </ScrollArea>
-            <DialogFooter className="pt-6 sm:justify-start">
-                <Button type="submit">Save Measurement</Button>
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <ScrollArea className="overflow-y-auto">
+            <div className="px-6">
+                <Form {...form}>
+                    <form id="add-measurement-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2">
+                            <h4 className="col-span-full font-medium text-base mt-2">Core</h4>
+                            {renderMeasurementField("height", "Height")}
+                            {renderMeasurementField("neck", "Neck")}
+                            {renderMeasurementField("chest", "Chest")}
+                            {renderMeasurementField("waist", "Waist")}
+                            {renderMeasurementField("hips", "Hips")}
+
+                            <h4 className="col-span-full font-medium text-base mt-4">Upper Body</h4>
+                            {renderMeasurementField("shoulder", "Shoulder")}
+                            {renderMeasurementField("neckWidth", "Neck Width")}
+                            {renderMeasurementField("underbust", "Underbust")}
+                            {renderMeasurementField("nippleToNipple", "Nipple to Nipple")}
+                            {renderMeasurementField("singleShoulder", "Single Shoulder")}
+                            {renderMeasurementField("frontDrop", "Front Drop")}
+                            {renderMeasurementField("backDrop", "Back Drop")}
+                            
+                            <h4 className="col-span-full font-medium text-base mt-4">Arm</h4>
+                            {renderMeasurementField("sleeveLength", "Sleeve Length")}
+                            {renderMeasurementField("upperarmWidth", "Upperarm Width")}
+                            {renderMeasurementField("armholeCurve", "Armhole Curve")}
+                            {renderMeasurementField("armholeCurveStraight", "Armhole Curve Straight")}
+                            {renderMeasurementField("shoulderToWrist", "Shoulder to Wrist")}
+                            {renderMeasurementField("shoulderToElbow", "Shoulder to Elbow")}
+                            {renderMeasurementField("innerArmLength", "Inner Arm Length")}
+                            {renderMeasurementField("sleeveOpening", "Sleeve Opening")}
+                            {renderMeasurementField("cuffHeight", "Cuff Height")}
+                            
+                            <h4 className="col-span-full font-medium text-base mt-4">Lower Body</h4>
+                            {renderMeasurementField("inseamLength", "Inseam Length")}
+                            {renderMeasurementField("outseamLength", "Outseam Length")}
+                            {renderMeasurementField("waistToKneeLength", "Waist to Knee Length")}
+                            {renderMeasurementField("waistToAnkle", "Waist to Ankle")}
+                            {renderMeasurementField("thighCirc", "Thigh Circ.")}
+                            {renderMeasurementField("ankleCirc", "Ankle Circ.")}
+                            {renderMeasurementField("backRise", "Back Rise")}
+                            {renderMeasurementField("frontRise", "Front Rise")}
+                            {renderMeasurementField("legOpening", "Leg Opening")}
+                            {renderMeasurementField("seatLength", "Seat Length")}
+                            
+                            <h4 className="col-span-full font-medium text-base mt-4">Garment Specific</h4>
+                            {renderMeasurementField("neckBandWidth", "Neck Band Width")}
+                            {renderMeasurementField("collarWidth", "Collar Width")}
+                            {renderMeasurementField("collarPoint", "Collar Point")}
+                            {renderMeasurementField("waistBand", "Waist Band")}
+                            {renderMeasurementField("shoulderToWaist", "Shoulder to Waist")}
+                            {renderMeasurementField("shoulderToAnkle", "Shoulder to Ankle")}
+                        </div>
+                    </form>
+                </Form>
+            </div>
+        </ScrollArea>
+
+        <DialogFooter className="p-6 pt-4 border-t sm:justify-start">
+            <Button type="submit" form="add-measurement-form">Save Measurement</Button>
+            <Button type="button" variant="outline" onClick={handleCancel}>Cancel</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
