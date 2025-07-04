@@ -37,44 +37,46 @@ import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "./ui/scroll-area"
 import { Separator } from "./ui/separator"
 
+const optionalPositiveNumber = z.union([z.literal("").transform(() => null), z.coerce.number().positive()]).nullable();
+
 const measurementSchema = {
-    height: z.coerce.number().positive().nullable(),
-    neck: z.coerce.number().positive().nullable(),
-    chest: z.coerce.number().positive().nullable(),
-    waist: z.coerce.number().positive().nullable(),
-    hips: z.coerce.number().positive().nullable(),
-    shoulder: z.coerce.number().positive().nullable(),
-    neckWidth: z.coerce.number().positive().nullable(),
-    underbust: z.coerce.number().positive().nullable(),
-    nippleToNipple: z.coerce.number().positive().nullable(),
-    singleShoulder: z.coerce.number().positive().nullable(),
-    frontDrop: z.coerce.number().positive().nullable(),
-    backDrop: z.coerce.number().positive().nullable(),
-    sleeveLength: z.coerce.number().positive().nullable(),
-    upperarmWidth: z.coerce.number().positive().nullable(),
-    armholeCurve: z.coerce.number().positive().nullable(),
-    armholeCurveStraight: z.coerce.number().positive().nullable(),
-    shoulderToWrist: z.coerce.number().positive().nullable(),
-    shoulderToElbow: z.coerce.number().positive().nullable(),
-    innerArmLength: z.coerce.number().positive().nullable(),
-    sleeveOpening: z.coerce.number().positive().nullable(),
-    cuffHeight: z.coerce.number().positive().nullable(),
-    inseamLength: z.coerce.number().positive().nullable(),
-    outseamLength: z.coerce.number().positive().nullable(),
-    waistToKneeLength: z.coerce.number().positive().nullable(),
-    waistToAnkle: z.coerce.number().positive().nullable(),
-    thighCirc: z.coerce.number().positive().nullable(),
-    ankleCirc: z.coerce.number().positive().nullable(),
-    backRise: z.coerce.number().positive().nullable(),
-    frontRise: z.coerce.number().positive().nullable(),
-    legOpening: z.coerce.number().positive().nullable(),
-    seatLength: z.coerce.number().positive().nullable(),
-    neckBandWidth: z.coerce.number().positive().nullable(),
-    collarWidth: z.coerce.number().positive().nullable(),
-    collarPoint: z.coerce.number().positive().nullable(),
-    waistBand: z.coerce.number().positive().nullable(),
-    shoulderToWaist: z.coerce.number().positive().nullable(),
-    shoulderToAnkle: z.coerce.number().positive().nullable(),
+    height: optionalPositiveNumber,
+    neck: optionalPositiveNumber,
+    chest: optionalPositiveNumber,
+    waist: optionalPositiveNumber,
+    hips: optionalPositiveNumber,
+    shoulder: optionalPositiveNumber,
+    neckWidth: optionalPositiveNumber,
+    underbust: optionalPositiveNumber,
+    nippleToNipple: optionalPositiveNumber,
+    singleShoulder: optionalPositiveNumber,
+    frontDrop: optionalPositiveNumber,
+    backDrop: optionalPositiveNumber,
+    sleeveLength: optionalPositiveNumber,
+    upperarmWidth: optionalPositiveNumber,
+    armholeCurve: optionalPositiveNumber,
+    armholeCurveStraight: optionalPositiveNumber,
+    shoulderToWrist: optionalPositiveNumber,
+    shoulderToElbow: optionalPositiveNumber,
+    innerArmLength: optionalPositiveNumber,
+    sleeveOpening: optionalPositiveNumber,
+    cuffHeight: optionalPositiveNumber,
+    inseamLength: optionalPositiveNumber,
+    outseamLength: optionalPositiveNumber,
+    waistToKneeLength: optionalPositiveNumber,
+    waistToAnkle: optionalPositiveNumber,
+    thighCirc: optionalPositiveNumber,
+    ankleCirc: optionalPositiveNumber,
+    backRise: optionalPositiveNumber,
+    frontRise: optionalPositiveNumber,
+    legOpening: optionalPositiveNumber,
+    seatLength: optionalPositiveNumber,
+    neckBandWidth: optionalPositiveNumber,
+    collarWidth: optionalPositiveNumber,
+    collarPoint: optionalPositiveNumber,
+    waistBand: optionalPositiveNumber,
+    shoulderToWaist: optionalPositiveNumber,
+    shoulderToAnkle: optionalPositiveNumber,
 };
 
 const formSchema = z.object({
@@ -119,7 +121,7 @@ export function EditMeasurementDialog({ open, onOpenChange, customerId, measurem
   
   const renderMeasurementField = (name: keyof typeof measurementSchema, label: string) => (
     <FormField name={name} control={form.control} render={({ field }) => (
-        <FormItem><FormLabel>{label}</FormLabel><FormControl><Input type="number" step="0.1" {...field} value={field.value ?? ""} /></FormControl><FormMessage /></FormItem>
+        <FormItem><FormLabel>{label}</FormLabel><FormControl><Input type="number" step="0.1" {...field} value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value)}/></FormControl><FormMessage /></FormItem>
     )} />
   );
 
