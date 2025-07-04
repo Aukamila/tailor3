@@ -30,6 +30,13 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
@@ -83,6 +90,8 @@ const formSchema = z.object({
   requestDate: z.date({
     required_error: "A request date is required.",
   }),
+  paymentStatus: z.enum(["Paid", "Unpaid", "Partial"]),
+  completionStatus: z.enum(["Pending", "In Progress", "Completed"]),
   ...measurementSchema,
 })
 
@@ -105,6 +114,8 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
       nic: "",
       jobNumber: "",
       requestDate: undefined,
+      paymentStatus: "Unpaid",
+      completionStatus: "Pending",
       height: null, neck: null, chest: null, waist: null, hips: null, shoulder: null,
       neckWidth: null, underbust: null, nippleToNipple: null, singleShoulder: null,
       frontDrop: null, backDrop: null, sleeveLength: null, upperarmWidth: null,
@@ -119,8 +130,11 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const { name, email, phone, nic, jobNumber, requestDate, ...measurements } = values;
-    addCustomer({ name, email, phone, nic, jobNumber, requestDate: requestDate.toISOString() }, measurements)
+    const { name, email, phone, nic, jobNumber, requestDate, paymentStatus, completionStatus, ...measurements } = values;
+    addCustomer(
+        { name, email, phone, nic, jobNumber, requestDate: requestDate.toISOString() }, 
+        { ...measurements, paymentStatus, completionStatus }
+    )
     toast({
         title: "Customer Added",
         description: `${name} has been successfully added to your records.`,
@@ -274,6 +288,50 @@ export function AddCustomerDialog({ children, open, onOpenChange }: AddCustomerD
                                   </FormItem>
                               )}
                           />
+                          <FormField
+                            control={form.control}
+                            name="paymentStatus"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Payment Status</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    <SelectItem value="Unpaid">Unpaid</SelectItem>
+                                    <SelectItem value="Partial">Partial</SelectItem>
+                                    <SelectItem value="Paid">Paid</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="completionStatus"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Completion Status</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select status" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                        <SelectItem value="Pending">Pending</SelectItem>
+                                        <SelectItem value="In Progress">In Progress</SelectItem>
+                                        <SelectItem value="Completed">Completed</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                       </div>
                   </div>
 

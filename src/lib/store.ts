@@ -1,9 +1,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+export type PaymentStatus = 'Paid' | 'Unpaid' | 'Partial';
+export type CompletionStatus = 'Pending' | 'In Progress' | 'Completed';
+
 export interface Measurement {
   id: string;
   date: string;
+  paymentStatus: PaymentStatus;
+  completionStatus: CompletionStatus;
   
   // Core
   height: number | null;
@@ -72,6 +77,8 @@ interface CustomerState {
 }
 
 const emptyMeasurement: Omit<Measurement, 'id' | 'date'> = {
+    paymentStatus: 'Unpaid',
+    completionStatus: 'Pending',
     height: null, neck: null, chest: null, waist: null, hips: null, shoulder: null,
     neckWidth: null, underbust: null, nippleToNipple: null, singleShoulder: null,
     frontDrop: null, backDrop: null, sleeveLength: null, upperarmWidth: null,
@@ -95,8 +102,8 @@ const initialCustomers: Customer[] = [
     jobNumber: 'JOB-001',
     requestDate: new Date('2023-10-01T10:00:00Z').toISOString(),
     measurements: [
-      { id: 'm1', date: new Date('2023-10-15T10:00:00Z').toISOString(), ...emptyMeasurement, neck: 14.5, chest: 38, waist: 30, hips: 40, sleeveLength: 24, inseamLength: 31 },
-      { id: 'm2', date: new Date('2024-03-22T11:30:00Z').toISOString(), ...emptyMeasurement, neck: 14.5, chest: 38.5, waist: 30, hips: 40, sleeveLength: 24, inseamLength: 31 },
+      { id: 'm1', date: new Date('2023-10-15T10:00:00Z').toISOString(), ...emptyMeasurement, paymentStatus: 'Paid', completionStatus: 'Completed', neck: 14.5, chest: 38, waist: 30, hips: 40, sleeveLength: 24, inseamLength: 31 },
+      { id: 'm2', date: new Date('2024-03-22T11:30:00Z').toISOString(), ...emptyMeasurement, paymentStatus: 'Unpaid', completionStatus: 'Pending', neck: 14.5, chest: 38.5, waist: 30, hips: 40, sleeveLength: 24, inseamLength: 31 },
     ],
   },
   {
@@ -108,7 +115,7 @@ const initialCustomers: Customer[] = [
     jobNumber: 'JOB-002',
     requestDate: new Date('2024-03-25T14:00:00Z').toISOString(),
     measurements: [
-      { id: 'm3', date: new Date('2024-04-01T14:00:00Z').toISOString(), ...emptyMeasurement, neck: 16, chest: 42, waist: 34, hips: 42, sleeveLength: 26, inseamLength: 33 },
+      { id: 'm3', date: new Date('2024-04-01T14:00:00Z').toISOString(), ...emptyMeasurement, paymentStatus: 'Partial', completionStatus: 'In Progress', neck: 16, chest: 42, waist: 34, hips: 42, sleeveLength: 26, inseamLength: 33 },
     ],
   },
   {
@@ -120,7 +127,7 @@ const initialCustomers: Customer[] = [
     jobNumber: 'JOB-003',
     requestDate: new Date('2024-05-15T09:45:00Z').toISOString(),
     measurements: [
-      { id: 'm4', date: new Date('2024-05-20T09:45:00Z').toISOString(), ...emptyMeasurement, neck: 13.5, chest: 34, waist: 26, hips: 38, sleeveLength: 23, inseamLength: 29 },
+      { id: 'm4', date: new Date('2024-05-20T09:45:00Z').toISOString(), ...emptyMeasurement, paymentStatus: 'Paid', completionStatus: 'Completed', neck: 13.5, chest: 34, waist: 26, hips: 38, sleeveLength: 23, inseamLength: 29 },
     ],
   },
 ];

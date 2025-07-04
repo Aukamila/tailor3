@@ -4,7 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { format } from 'date-fns';
-import { useCustomerStore, Measurement } from "@/lib/store"
+import { useCustomerStore, Measurement, PaymentStatus, CompletionStatus } from "@/lib/store"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,6 +13,8 @@ import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditMeasurementDialog } from "./edit-measurement-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 function CustomerDetailSkeleton() {
     return (
@@ -66,7 +68,7 @@ const measurementGroups = {
 type MeasurementGroupCardProps = {
     title: string;
     measurements: Measurement;
-    fields: readonly (keyof Omit<Measurement, 'id' | 'date'>)[];
+    fields: readonly (keyof Omit<Measurement, 'id' | 'date' | 'paymentStatus' | 'completionStatus'>)[];
 }
 
 function MeasurementGroupCard({ title, measurements, fields }: MeasurementGroupCardProps) {
@@ -130,6 +132,25 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
 
   const sortedMeasurements = [...customer.measurements].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  const getPaymentStatusVariant = (status: PaymentStatus) => {
+    switch (status) {
+        case 'Paid': return 'default';
+        case 'Partial': return 'secondary';
+        case 'Unpaid': return 'destructive';
+        default: return 'outline';
+    }
+  }
+
+  const getCompletionStatusVariant = (status: CompletionStatus) => {
+    switch (status) {
+        case 'Completed': return 'default';
+        case 'In Progress': return 'secondary';
+        case 'Pending': return 'outline';
+        default: return 'outline';
+    }
+  }
+
+
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
         <div className="flex items-center gap-4">
@@ -178,7 +199,13 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                         <TabsContent key={m.id} value={m.id}>
                             <div className="pt-4 border-t mt-2">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-lg font-semibold">Details for {format(new Date(m.date), 'PPPP')}</h3>
+                                    <div className="flex items-center gap-4">
+                                        <h3 className="text-lg font-semibold">Details for {format(new Date(m.date), 'PPPP')}</h3>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant={getPaymentStatusVariant(m.paymentStatus)} className={cn(m.paymentStatus === 'Paid' && 'bg-green-600')}>{m.paymentStatus}</Badge>
+                                            <Badge variant={getCompletionStatusVariant(m.completionStatus)} className={cn(m.completionStatus === 'Completed' && 'bg-green-600')}>{m.completionStatus}</Badge>
+                                        </div>
+                                    </div>
                                     <Button variant="outline" size="sm" onClick={() => setEditingMeasurement(m)}>
                                         <Pencil className="mr-2 h-4 w-4" />
                                         Edit this record
