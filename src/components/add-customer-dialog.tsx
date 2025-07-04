@@ -41,7 +41,6 @@ import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { createClient } from "@/lib/supabase-client"
-import { revalidatePath } from "next/cache"
 import { useRouter } from "next/navigation"
 
 const optionalNonNegativeNumber = z.union([z.literal("").transform(() => null), z.coerce.number().nonnegative()]).nullable();

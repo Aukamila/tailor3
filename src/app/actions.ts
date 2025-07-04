@@ -81,8 +81,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: name,
       },
-      // remove the emailRedirectTo if you don't want to verify emails
-      // emailRedirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`,
+      // emailRedirectTo is removed to disable email verification by default
     },
   })
 
