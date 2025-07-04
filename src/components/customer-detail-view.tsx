@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,11 +8,11 @@ import { useCustomerStore, Measurement } from "@/lib/store"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar, CreditCard, Pencil } from "lucide-react"
 import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditMeasurementDialog } from "./edit-measurement-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function CustomerDetailSkeleton() {
     return (
@@ -40,6 +41,59 @@ function CustomerDetailSkeleton() {
         </main>
     )
 }
+
+const measurementLabels: Record<string, string> = {
+    height: 'Height', neck: 'Neck', chest: 'Chest', waist: 'Waist', hips: 'Hips', shoulder: 'Shoulder',
+    neckWidth: 'Neck Width', underbust: 'Underbust', nippleToNipple: 'Nipple to Nipple', singleShoulder: 'Single Shoulder',
+    frontDrop: 'Front Drop', backDrop: 'Back Drop', sleeveLength: 'Sleeve Length', upperarmWidth: 'Upperarm Width',
+    armholeCurve: 'Armhole Curve', armholeCurveStraight: 'Armhole Curve (Straight)', shoulderToWrist: 'Shoulder to Wrist',
+    shoulderToElbow: 'Shoulder to Elbow', innerArmLength: 'Inner Arm Length', sleeveOpening: 'Sleeve Opening',
+    cuffHeight: 'Cuff Height', inseamLength: 'Inseam Length', outseamLength: 'Outseam Length',
+    waistToKneeLength: 'Waist to Knee Length', waistToAnkle: 'Waist to Ankle', thighCirc: 'Thigh Circ.', ankleCirc: 'Ankle Circ.',
+    backRise: 'Back Rise', frontRise: 'Front Rise', legOpening: 'Leg Opening', seatLength: 'Seat Length',
+    neckBandWidth: 'Neck Band Width', collarWidth: 'Collar Width', collarPoint: 'Collar Point', waistBand: 'Waist Band',
+    shoulderToWaist: 'Shoulder to Waist', shoulderToAnkle: 'Shoulder to Ankle',
+};
+
+const measurementGroups = {
+    "Core": ['height', 'neck', 'chest', 'waist', 'hips'],
+    "Upper Body": ['shoulder', 'neckWidth', 'underbust', 'nippleToNipple', 'singleShoulder', 'frontDrop', 'backDrop'],
+    "Arm": ['sleeveLength', 'upperarmWidth', 'armholeCurve', 'armholeCurveStraight', 'shoulderToWrist', 'shoulderToElbow', 'innerArmLength', 'sleeveOpening', 'cuffHeight'],
+    "Lower Body": ['inseamLength', 'outseamLength', 'waistToKneeLength', 'waistToAnkle', 'thighCirc', 'ankleCirc', 'backRise', 'frontRise', 'legOpening', 'seatLength'],
+    "Garment Specific": ['neckBandWidth', 'collarWidth', 'collarPoint', 'waistBand', 'shoulderToWaist', 'shoulderToAnkle']
+} as const;
+
+type MeasurementGroupCardProps = {
+    title: string;
+    measurements: Measurement;
+    fields: readonly (keyof Omit<Measurement, 'id' | 'date'>)[];
+}
+
+function MeasurementGroupCard({ title, measurements, fields }: MeasurementGroupCardProps) {
+    const hasData = fields.some(field => measurements[field] != null && measurements[field] !== 0);
+
+    if (!hasData) return null;
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="text-base">{title}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                {fields.map(field => {
+                    const value = measurements[field];
+                    return (value != null && value !== 0) ? (
+                        <React.Fragment key={field}>
+                            <div className="font-medium text-muted-foreground">{measurementLabels[field]}</div>
+                            <div className="text-right tabular-nums">{value}"</div>
+                        </React.Fragment>
+                    ) : null;
+                })}
+            </CardContent>
+        </Card>
+    )
+}
+
 
 type CustomerDetailViewProps = {
     customerId: string;
@@ -76,10 +130,6 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
 
   const sortedMeasurements = [...customer.measurements].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const renderCell = (value: number | null | undefined) => (
-    <TableCell className="text-center">{value ?? '–'}</TableCell>
-  )
-
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
         <div className="flex items-center gap-4">
@@ -115,101 +165,44 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                 </AddMeasurementDialog>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="sticky left-0 bg-card">Date</TableHead>
-                            <TableHead className="text-center">Height</TableHead>
-                            <TableHead className="text-center">Neck</TableHead>
-                            <TableHead className="text-center">Neck Width</TableHead>
-                            <TableHead className="text-center">Chest</TableHead>
-                            <TableHead className="text-center">Waist</TableHead>
-                            <TableHead className="text-center">Hips</TableHead>
-                            <TableHead className="text-center">Underbust</TableHead>
-                            <TableHead className="text-center">Nipple to Nipple</TableHead>
-                            <TableHead className="text-center">Shoulder</TableHead>
-                            <TableHead className="text-center">Single Shoulder</TableHead>
-                            <TableHead className="text-center">Front Drop</TableHead>
-                            <TableHead className="text-center">Back Drop</TableHead>
-                            <TableHead className="text-center">Sleeve Length</TableHead>
-                            <TableHead className="text-center">Upperarm Width</TableHead>
-                            <TableHead className="text-center">Armhole Curve</TableHead>
-                            <TableHead className="text-center">Armhole Curve (Straight)</TableHead>
-                            <TableHead className="text-center">Shoulder to Wrist</TableHead>
-                            <TableHead className="text-center">Shoulder to Elbow</TableHead>
-                            <TableHead className="text-center">Inner Arm Length</TableHead>
-                            <TableHead className="text-center">Sleeve Opening</TableHead>
-                            <TableHead className="text-center">Cuff Height</TableHead>
-                            <TableHead className="text-center">Inseam Length</TableHead>
-                            <TableHead className="text-center">Outseam Length</TableHead>
-                            <TableHead className="text-center">Waist to Knee</TableHead>
-                            <TableHead className="text-center">Waist to Ankle</TableHead>
-                            <TableHead className="text-center">Thigh Circ.</TableHead>
-                            <TableHead className="text-center">Ankle Circ.</TableHead>
-                            <TableHead className="text-center">Back Rise</TableHead>
-                            <TableHead className="text-center">Front Rise</TableHead>
-                            <TableHead className="text-center">Leg Opening</TableHead>
-                            <TableHead className="text-center">Seat Length</TableHead>
-                            <TableHead className="text-center">Neck Band Width</TableHead>
-                            <TableHead className="text-center">Collar Width</TableHead>
-                            <TableHead className="text-center">Collar Point</TableHead>
-                            <TableHead className="text-center">Waist Band</TableHead>
-                            <TableHead className="text-center">Shoulder to Waist</TableHead>
-                            <TableHead className="text-center">Shoulder to Ankle</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {sortedMeasurements.map(m => (
-                            <TableRow key={m.id}>
-                                <TableCell className="font-medium sticky left-0 bg-card">{format(new Date(m.date), 'PP')}</TableCell>
-                                {renderCell(m.height)}
-                                {renderCell(m.neck)}
-                                {renderCell(m.neckWidth)}
-                                {renderCell(m.chest)}
-                                {renderCell(m.waist)}
-                                {renderCell(m.hips)}
-                                {renderCell(m.underbust)}
-                                {renderCell(m.nippleToNipple)}
-                                {renderCell(m.shoulder)}
-                                {renderCell(m.singleShoulder)}
-                                {renderCell(m.frontDrop)}
-                                {renderCell(m.backDrop)}
-                                {renderCell(m.sleeveLength)}
-                                {renderCell(m.upperarmWidth)}
-                                {renderCell(m.armholeCurve)}
-                                {renderCell(m.armholeCurveStraight)}
-                                {renderCell(m.shoulderToWrist)}
-                                {renderCell(m.shoulderToElbow)}
-                                {renderCell(m.innerArmLength)}
-                                {renderCell(m.sleeveOpening)}
-                                {renderCell(m.cuffHeight)}
-                                {renderCell(m.inseamLength)}
-                                {renderCell(m.outseamLength)}
-                                {renderCell(m.waistToKneeLength)}
-                                {renderCell(m.waistToAnkle)}
-                                {renderCell(m.thighCirc)}
-                                {renderCell(m.ankleCirc)}
-                                {renderCell(m.backRise)}
-                                {renderCell(m.frontRise)}
-                                {renderCell(m.legOpening)}
-                                {renderCell(m.seatLength)}
-                                {renderCell(m.neckBandWidth)}
-                                {renderCell(m.collarWidth)}
-                                {renderCell(m.collarPoint)}
-                                {renderCell(m.waistBand)}
-                                {renderCell(m.shoulderToWaist)}
-                                {renderCell(m.shoulderToAnkle)}
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" onClick={() => setEditingMeasurement(m)}>
-                                        <Pencil className="h-4 w-4" />
-                                        <span className="sr-only">Edit Measurement</span>
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
+                {sortedMeasurements.length > 0 ? (
+                <Tabs defaultValue={sortedMeasurements[0].id} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 h-auto flex-wrap justify-start">
+                        {sortedMeasurements.map((m) => (
+                            <TabsTrigger key={m.id} value={m.id}>
+                                {format(new Date(m.date), 'PP')}
+                            </TabsTrigger>
                         ))}
-                    </TableBody>
-                </Table>
+                    </TabsList>
+                    {sortedMeasurements.map((m) => (
+                        <TabsContent key={m.id} value={m.id}>
+                            <div className="pt-4 border-t mt-2">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg font-semibold">Details for {format(new Date(m.date), 'PPPP')}</h3>
+                                    <Button variant="outline" size="sm" onClick={() => setEditingMeasurement(m)}>
+                                        <Pencil className="mr-2 h-4 w-4" />
+                                        Edit this record
+                                    </Button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {Object.entries(measurementGroups).map(([groupTitle, fields]) => (
+                                        <MeasurementGroupCard
+                                            key={groupTitle}
+                                            title={groupTitle}
+                                            measurements={m}
+                                            fields={fields}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </TabsContent>
+                    ))}
+                </Tabs>
+                ) : (
+                    <div className="text-center text-muted-foreground py-12">
+                        No measurement history found. Add the first record to get started.
+                    </div>
+                )}
             </CardContent>
         </Card>
         {editingMeasurement && (
