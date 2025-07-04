@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { format } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 function OrderListSkeleton() {
     return (
@@ -104,6 +105,7 @@ export function OrderListPage() {
   }, [])
 
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [paymentFilter, setPaymentFilter] = React.useState("All")
   const customers = useCustomerStore((state) => state.customers)
 
   const allOrders = React.useMemo(() => {
@@ -126,11 +128,19 @@ export function OrderListPage() {
     return orders.sort((a,b) => new Date(b.measurementDate).getTime() - new Date(a.measurementDate).getTime());
   }, [customers]);
 
-  const filteredOrders = allOrders.filter((order) =>
-    order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.jobNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (order.nic || '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredOrders = React.useMemo(() => {
+    return allOrders
+      .filter((order) => {
+        if (paymentFilter === 'All') return true
+        return order.paymentStatus === paymentFilter
+      })
+      .filter((order) =>
+        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.jobNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (order.nic || '').toLowerCase().includes(searchQuery.toLowerCase())
+      )
+  }, [allOrders, paymentFilter, searchQuery]);
+
 
   if (!isClient) {
     return <OrderListSkeleton />;
@@ -167,16 +177,24 @@ export function OrderListPage() {
         </div>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by customer, job, or NIC..."
+                placeholder="Search within selected tab..."
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            <Tabs value={paymentFilter} onValueChange={setPaymentFilter}>
+              <TabsList>
+                <TabsTrigger value="All">All</TabsTrigger>
+                <TabsTrigger value="Paid">Paid</TabsTrigger>
+                <TabsTrigger value="Unpaid">Unpaid</TabsTrigger>
+                <TabsTrigger value="Partial">Partial</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </CardHeader>
           <CardContent>
             <Table>
@@ -230,7 +248,7 @@ export function OrderListPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                       {searchQuery ? "No orders found." : "No orders yet."}
+                       {allOrders.length > 0 ? "No orders match your current filters." : "No orders yet."}
                     </TableCell>
                   </TableRow>
                 )}
