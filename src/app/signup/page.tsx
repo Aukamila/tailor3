@@ -61,7 +61,6 @@ export default function SignupPage() {
         data: {
           name: values.name,
         },
-        emailRedirectTo: `${location.origin}/auth/callback`,
       }
     })
 
@@ -75,7 +74,7 @@ export default function SignupPage() {
     } else {
       toast({
           title: "Account Created",
-          description: "Please check your email to verify your account.",
+          description: "Your account has been created successfully. You can now sign in.",
       })
       router.push("/login")
     }
