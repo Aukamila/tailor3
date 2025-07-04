@@ -3,14 +3,15 @@
 import * as React from "react"
 import Link from "next/link"
 import { format } from 'date-fns';
-import { useCustomerStore } from "@/lib/store"
+import { useCustomerStore, Measurement } from "@/lib/store"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar, CreditCard } from "lucide-react"
+import { ChevronLeft, Mail, Phone, PlusCircle, Ruler, FileText, Calendar, CreditCard, Pencil } from "lucide-react"
 import { AddMeasurementDialog } from "@/components/add-measurement-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EditMeasurementDialog } from "./edit-measurement-dialog";
 
 function CustomerDetailSkeleton() {
     return (
@@ -53,7 +54,9 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
   const customer = useCustomerStore((state) =>
     state.customers.find((c) => c.id === customerId)
   )
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
+  const [editingMeasurement, setEditingMeasurement] = React.useState<Measurement | null>(null);
+
 
   if (!isClient) {
     return <CustomerDetailSkeleton />;
@@ -104,8 +107,8 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                     <CardTitle className="flex items-center gap-2"><Ruler className="h-5 w-5"/> Measurement History</CardTitle>
                     <CardDescription>All recorded measurements for {customer.name}.</CardDescription>
                 </div>
-                 <AddMeasurementDialog customerId={customer.id} open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <Button onClick={() => setIsDialogOpen(true)} variant="default">
+                 <AddMeasurementDialog customerId={customer.id} open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <Button onClick={() => setIsAddDialogOpen(true)} variant="default">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Measurement
                     </Button>
@@ -153,6 +156,7 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                             <TableHead className="text-center">Waist Band</TableHead>
                             <TableHead className="text-center">Shoulder to Waist</TableHead>
                             <TableHead className="text-center">Shoulder to Ankle</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -196,12 +200,30 @@ export function CustomerDetailView({ customerId }: CustomerDetailViewProps) {
                                 {renderCell(m.waistBand)}
                                 {renderCell(m.shoulderToWaist)}
                                 {renderCell(m.shoulderToAnkle)}
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => setEditingMeasurement(m)}>
+                                        <Pencil className="h-4 w-4" />
+                                        <span className="sr-only">Edit Measurement</span>
+                                    </Button>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </CardContent>
         </Card>
+        {editingMeasurement && (
+            <EditMeasurementDialog
+                customerId={customer.id}
+                measurement={editingMeasurement}
+                open={!!editingMeasurement}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setEditingMeasurement(null);
+                    }
+                }}
+            />
+        )}
     </main>
   )
 }

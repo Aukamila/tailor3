@@ -68,6 +68,7 @@ interface CustomerState {
   customers: Customer[];
   addCustomer: (customerData: Omit<Customer, 'id' | 'measurements'>, initialMeasurement: Omit<Measurement, 'id' | 'date'>) => void;
   addMeasurement: (customerId: string, measurement: Omit<Measurement, 'id' | 'date'>) => void;
+  updateMeasurement: (customerId: string, measurement: Measurement) => void;
 }
 
 const emptyMeasurement: Omit<Measurement, 'id' | 'date'> = {
@@ -162,6 +163,26 @@ export const useCustomerStore = create<CustomerState>()(
                       date: new Date().toISOString(),
                     },
                   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+                }
+              : customer
+          ),
+        }));
+      },
+
+      updateMeasurement: (customerId, updatedMeasurement) => {
+        set((state) => ({
+          customers: state.customers.map((customer) =>
+            customer.id === customerId
+              ? {
+                  ...customer,
+                  measurements: customer.measurements
+                    .map((m) =>
+                      m.id === updatedMeasurement.id ? updatedMeasurement : m
+                    )
+                    .sort(
+                      (a, b) =>
+                        new Date(b.date).getTime() - new Date(a.date).getTime()
+                    ),
                 }
               : customer
           ),
